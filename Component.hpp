@@ -65,7 +65,7 @@ private:
     std::vector<ComponentIndex> _freeSlots;
 };
 
-static_assert(sizeof(kF::ECS::Component<int>) == sizeof(kF::ECS::Component<std::vector<int>>));
-static_assert(sizeof(kF::ECS::Component<int>) == sizeof(kF::ECS::Component<char[420]>));
+static_assert(sizeof(kF::ECS::Component<int>) == sizeof(kF::ECS::Component<std::vector<int>>), "A Component size must not vary upon instantiation");
+static_assert(sizeof(kF::ECS::Component<int>) == sizeof(kF::ECS::Component<char[420]>), "A Component size must not vary upon instantiation");
 
 #include "Component.ipp"

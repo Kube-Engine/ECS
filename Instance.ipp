@@ -25,7 +25,7 @@ kF::ECS::Component<Type> &kF::ECS::Instance::getComponent(void) noexcept_ndebug
 template<typename ...Args>
 kF::ECS::Entity kF::ECS::Instance::registerEntity(std::array<ComponentIndex, sizeof...(Args)> &array) noexcept
 {
-    static_assert(sizeof...(Args) != 0);
+    static_assert(sizeof...(Args) != 0, "You can't register an Entity without components");
 
     auto type = getEntityType<Args...>();
     Entity entity;
