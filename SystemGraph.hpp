@@ -2,37 +2,55 @@
  * @ Author: Léos Julien
  * @ Description: A Flow Graph of System(s)
  */
-#pragma once // What is that ?
 
-#include <Kube/Flow/Graph.hpp> // Why not including ?
+#pragma once
 
 #include <vector>
 
+#include <Kube/Flow/Graph.hpp>
+
 #include "ASystem.hpp"
 
-namespace Kf::ECS
+namespace kF::ECS
 {
     template <typename EntityType>
     class SystemGraph;
 
     template <typename EntityType>
-    using SystemPtr = std::unique_ptr<ASystem<EntityType>>
-} // namespace Kf::ECS
+    using SystemPtr = std::unique_ptr<ASystem<EntityType>>;
+}
 
 /** @brief A Flow Graph of system(s) */
 template <typename EntityType>
-class Kf::ECS::SystemGraph
+class alignas(32) kF::ECS::SystemGraph
 {
 public:
     /** @brief Construct the System Graph */
-    SystemGraph(void){};
+    SystemGraph(void) noexcept = default;
 
     /** @brief Destruct the System Graph */
-    virtual ~SystemGraph(void){};
+    ~SystemGraph(void) = default;
+
 
     /** @brief Add a System to the Graph */
     template <typename System, typename... Args>
-    System &add<System, Args...>(Args &&... args); // Why Args ? What is '&&' ? Equals to '**' ? Implementation example ?
+        requires    std::derived_from<System, ASystem<EntityType>> &&
+                    std::constructible_from<System, Args...>
+    System &add(Args &&... args) noexcept(nothrow_ndebug && nothrow_constructible(System, Args...));
+
+    /** @brief Check if a system is registered */
+    template <typename System> requires std::derived_from<System, ASystem<EntityType>>
+    [[nodiscard]] bool exists(void) const noexcept;
+
+    /** @brief Retrieve a System in the Graph */
+    template <typename System> requires std::derived_from<System, ASystem<EntityType>>
+    [[nodiscard]] System &get(void)
+        { return const_cast<System &>(const_cast<const SystemGraph &>(*this).get<System>()); }
+
+    /** @brief Retrieve a System in the Graph */
+    template <typename System> requires std::derived_from<System, ASystem<EntityType>>
+    [[nodiscard]] const System &get(void) const;
+
 
     /** @brief Setup and build the system graph according to internal system dependencies */
     void build(void);
@@ -40,21 +58,19 @@ public:
     /** @brief Clear all Systems from the Graph */
     void clear(void);
 
-    /** @brief Retrieve a System in the Graph */
-    template <typename System>
-    System &get<System>(void);
-
-    /** @brief Retrieve a System in the Graph */
-    template <typename System>
-    const System &get<System>(void) const;
 
     /** @brief Get system's internal Graph */
-    Kf::Flow::Graph &graph(void) { return _graph; };
+    [[nodiscard]] kF::Flow::Graph &graph(void) noexcept { return _graph; };
 
     /** @brief Get system's internal Graph */
-    const Kf::Flow::Graph &graph(void) const { return _graph; };
+    [[nodiscard]] const kF::Flow::Graph &graph(void) const noexcept { return _graph; };
 
 private:
-    Kf::Flow::Graph _graph;
-    std::vector<Kf::ECS::SystemPtr<EntityType>> _systems;
-}
+    kF::Flow::Graph _graph {};
+    std::vector<kF::ECS::SystemPtr<EntityType>> _systems {};
+};
+
+static_assert(sizeof(kF::ECS::SystemGraph<kF::ECS::Entity>) == 32, "SystemGraph must take 32 bytes");
+static_assert(sizeof(kF::ECS::SystemGraph<kF::ECS::LongEntity>) == 32, "SystemGraph must take 32 bytes");
+
+#include "SystemGraph.ipp"

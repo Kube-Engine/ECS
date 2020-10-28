@@ -3,7 +3,10 @@ project(KubeECS)
 get_filename_component(KubeECSDir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 set(KubeECSSources
-    ${KubeECSDir}/Dummy.cpp
+    ${KubeECSDir}/ASystem.hpp
+    ${KubeECSDir}/SystemGraph.hpp
+    ${KubeECSDir}/SystemGraph.ipp
+    ${KubeECSDir}/SystemGraph.cpp
 )
 
 add_library(${PROJECT_NAME} ${KubeECSSources})

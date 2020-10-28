@@ -3,9 +3,7 @@ project(KubeECSTests)
 get_filename_component(KubeECSTestsDir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 set(KubeECSTestsSources
-    ${KubeECSTestsDir}/tests_Component.cpp
-    ${KubeECSTestsDir}/tests_Instance.cpp
-    ${KubeECSTestsDir}/tests_EntityHolder.cpp
+    ${KubeECSTestsDir}/tests_ASystem.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${KubeECSTestsSources})
