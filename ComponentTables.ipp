@@ -5,34 +5,22 @@
 
 template<typename EntityType>
 template<typename Component>
-void kF::ECS::ComponentTables<EntityType>::add<Component>(void)
+inline void kF::ECS::ComponentTables<EntityType>::add(void)
+{
+}
+
+template<typename EntityType>
+inline bool kF::ECS::ComponentTables<EntityType>::tableExists(const Meta::Type type) const noexcept
 {
 }
 
 template<typename EntityType>
 template<typename Component>
-bool kF::ECS::ComponentTables<EntityType>::tableExists<Component>(void) const
+inline const kF::ECS::ComponentTable<Component> &kF::ECS::ComponentTables::getTable<Component>(void) const noexcept_ndebug
 {
 }
 
 template<typename EntityType>
-bool kF::ECS::ComponentTables<EntityType>::tableExists(const Meta::Type type) const
-{
-}
-
-template<typename EntityType>
-template<typename Component>
-[[nodiscard]] kF::ECS::ComponentTable<Component> &kF::ECS::ComponentTables<EntityType>::getTable<Component>(void) const
-{
-}
-
-template<typename EntityType>
-template<typename Component>
-[[nodiscard]] const kF::ECS::ComponentTable<Component> &kF::ECS::ComponentTables<EntityType>::getTable<Component>(void) const
-{
-}
-
-template<typename EntityType>
-void kF::ECS::ComponentTables<EntityType>::clear(void)
+inline void kF::ECS::ComponentTables<EntityType>::clear(void)
 {
 }

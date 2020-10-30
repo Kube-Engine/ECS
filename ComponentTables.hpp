@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Meta/Type.hpp>
+#include <Kube/Meta/Type.hpp>
 
 #include "ComponentTable.hpp"
 
@@ -15,6 +15,7 @@ namespace kF::ECS
     class ComponentTables;
 }
 
+/** @brief Store all component tables of a registry */
 template<typename EntityType = Entity>
 class kF::ECS::ComponentTables
 {
@@ -27,22 +28,23 @@ public:
 
     /** @brief Add a ComponentTable to internal list */
     template<typename Component>
-    void add<Component>(void);
+    void add(void);
 
     /** @brief Check if a ComponentTable is registered internally using explicit type */
     template<typename Component>
-    bool tableExists<Component>(void) const;
+    [[nodiscard]] bool tableExists(void) const noexcept { return tableExists(Meta::Factory<Component>::Resolve()); }
 
     /** @brief Check if a ComponentTable is registered internally using an opaque type */
-    bool tableExists(const Meta::Type type) const;
+    [[nodiscard]] bool tableExists(const Meta::Type type) const noexcept;
 
     /** @brief Get a ComponentTable casted to the right component */
     template<typename Component>
-    [[nodiscard]] ComponentTable<Component> &getTable<Component>(void) const;
+    [[nodiscard]] ComponentTable<Component> &getTable(void) const noexcept_ndebug
+        { return const_cast<ComponentTable<Component> &>(const_cast<const ComponentTables &>(*this).getTable<Component>()); }
 
     /** @brief Get a ComponentTable casted to the right component */
     template<typename Component>
-    [[nodiscard]] const ComponentTable<Component> &getTable<Component>(void) const;
+    [[nodiscard]] const ComponentTable<Component> &getTable(void) const noexcept_ndebug;
 
     /** @brief Get the number of ComponentTable stored internally */
     [[nodiscard]] std::size_t size(void) const noexcept { return _size; }
@@ -51,8 +53,8 @@ public:
     void clear(void);
 
 private:
-    std::unique_ptr<std::byte[]> _data;
-    std::size_t _size;
+    std::unique_ptr<std::byte[]> _data {};
+    std::size_t _size { 0ul };
 };
 
 #include "ComponentTables.ipp"
