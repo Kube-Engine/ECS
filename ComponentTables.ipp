@@ -7,60 +7,76 @@
 
 template<typename EntityType>
 template<typename Component>
-inline void kF::ECS::ComponentTables<EntityType>::add(void)
+inline void kF::ECS::ComponentTables<EntityType>::add(void) noexcept_ndebug
 {
-    if (!tableExists<Component>()) {
-        const auto oldData = _data.release();
-        const auto sizeType = sizeof(Meta::Type::TypeID);
-        const auto sizeTable = sizeof(ComponentTable<Component>);
+    using Table = ComponentTable<Component>;
 
-        _size += 1;
-        _data.reset(new std::byte[_size * sizeType + _size * sizeTable]);
+    constexpr auto TypeSize = sizeof(Meta::Type);
+    constexpr auto TableSize = sizeof(Table);
 
-        &(_data[_size * sizeType]) = std::move(&(oldData[_size * sizeType]));
-        &(_data[_size * sizeType + (_size - 1) * sizeTable]) = std::move(ComponentTable<Component>());
+    kFAssert(tableExists<Component>(),
+        throw std::logic_error("ECS::ComponentTables::add: Component table already added"));
 
-        _data = std::move(oldData);
-        &(_data[(_size - 1) * sizeType]) = Meta::Factory<Component>::Resolve();
+    const auto oldTypeByteSize = _size * TypeSize;
+    const auto oldTableByteSize = _size * TableSize;
+    const auto newSize = _size + 1;
+    const auto newTypeByteSize = newSize * TypeSize;
+    const auto newTableByteSize = newSize * TableSize;
+    const auto newByteSize = newTypeByteSize + newTableByteSize;
+    auto tmp = std::make_unique<std::byte[]>(newByteSize);
+
+    if (_size) [[likely]] {
+        std::memcpy(tmp.get(), _data.get(), oldTypeByteSize); // Copy old meta types
+        std::memcpy(tmp.get() + newTypeByteSize, _data.get() + oldTypeByteSize, oldTableByteSize); // Copy old component tables
     }
+    reinterpret_cast<Meta::Type *>(tmp.get())[_size] = Meta::Factory<Table>::Resolve(); // Add the new meta type
+    new (tmp.get() + newByteSize - TableSize) Table(); // Add the new component table
+    _data.swap(tmp); // Exchange the temporary data with the internal one (will destroy current at end of scope)
+    _size = newSize; // Set the new size
 }
 
 template<typename EntityType>
 inline bool kF::ECS::ComponentTables<EntityType>::tableExists(const Meta::Type type) const noexcept
 {
-    const auto size = sizeof(Meta::Type::TypeID);
+    auto it = reinterpret_cast<Meta::Type>(_data.get());
+    const auto end = it + _size;
 
-    for (std::size_t i = 0; i < _size; i += 1) {
-        const auto &otherType = reinterpret_cast<Meta::Type::TypeID &>(_data[i * size]);
-
-        if (type == otherType) {
+    while (it != end) {
+        if (*it != type) [[likely]]
+            ++it;
+        else [[unlikely]]
             return true;
-        }
     }
     return false;
 }
 
 template<typename EntityType>
 template<typename Component>
-inline const kF::ECS::ComponentTable<Component> &kF::ECS::ComponentTables<EntityType>::getTable<Component>(void) const noexcept_ndebug
+inline const kF::ECS::ComponentTable<Component> &kF::ECS::ComponentTables<EntityType>::getTable(void) const noexcept_ndebug
 {
-    kFAssert(tableExists<Component>(),
-        throw std::logic_error("ECS::ComponentTable::getTable: Table doesn't exists"));
+    using Table = ComponentTable<Component>;
+
+    constexpr auto TypeSize = sizeof(Meta::Type);
+    constexpr auto TableSize = sizeof(Table);
+
     const auto type = Meta::Factory<Component>::Resolve();
-    const auto sizeType = sizeof(Meta::Type::TypeID);
-    const auto sizeTable = sizeof(ComponentTable<Component>);
+    const auto begin = reinterpret_cast<Meta::Type>(_data.get());
+    const auto end = begin + _size;
+    auto it = begin;
 
-    for (std::size_t i = 0; i < _size; i += 1) {
-        const auto &otherType = reinterpret_cast<Meta::Type::TypeID &>(_data[i * sizeType]);
-
-        if (type == otherType) {
-            return reinterpret_cast<ComponentTable<Component> &>(_data[_size * sizeType + i * sizeTable]);
+    while (it != end) {
+        if (*it != type) [[likely]]
+            ++it;
+        else [[unlikely]] {
+            const auto pos = std::distance(begin, it);
+            return *reinterpret_cast<Table *>(_data.get() + _size * TypeSize + pos * TableSize);
         }
     }
+    kFDebugThrow(std::logic_error("ECS::ComponentTable::GetTable: Table doesn't exists"));
 }
 
 template<typename EntityType>
 inline void kF::ECS::ComponentTables<EntityType>::clear(void)
 {
-    _data.reset({});
+    _data.reset();
 }

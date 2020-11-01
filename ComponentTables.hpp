@@ -28,7 +28,7 @@ public:
 
     /** @brief Add a ComponentTable to internal list */
     template<typename Component>
-    void add(void);
+    void add(void) noexcept_ndebug;
 
     /** @brief Check if a ComponentTable is registered internally using explicit type */
     template<typename Component>
@@ -55,6 +55,9 @@ public:
 private:
     std::unique_ptr<std::byte[]> _data {};
     std::size_t _size { 0ul };
+
+    [[nodiscard]] Meta::Type *getTypeData(void) noexcept { return reinterpret_cast<Meta::Type>(_data.get()); }
+    [[nodiscard]] const Meta::Type *getTypeData(void) const noexcept { return reinterpret_cast<Meta::Type>(_data.get()); }
 };
 
 #include "ComponentTables.ipp"
