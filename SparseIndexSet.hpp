@@ -25,21 +25,20 @@ public:
     using Page = Type[PageSize];
     using PagePtr = std::unique_ptr<Page>;
 
-    /** @brief Default constructor. */
+    /** @brief Default constructor */
     SparseIndexSet(void) noexcept = default;
 
-    /** @brief Default move constructor. */
+    /** @brief Default move constructor */
     SparseIndexSet(SparseIndexSet &&other) noexcept = default;
 
-    /** @brief Default destructor. */
+    /** @brief Default destructor */
     ~SparseIndexSet(void) noexcept = default;
 
     /** @brief Returns true if the page containing index exists */
     [[nodiscard]] bool exists(const std::size_t index) const noexcept;
 
     /** @brief Add a new value to the set */
-    template<typename ...Args>
-    void add(const std::size_t index, Args &&...args) noexcept;
+    void add(const std::size_t index, const Type value) noexcept;
 
     /** @brief Remove a value from the set and return it */
     [[nodiscard]] Type remove(const std::size_t index) noexcept_ndebug;

@@ -16,7 +16,7 @@ namespace kF::ECS
 }
 
 /** @brief Store all component tables of a registry */
-template<typename EntityType = Entity>
+template<typename EntityType = kF::ECS::Entity>
 class kF::ECS::ComponentTables
 {
 public:

@@ -13,7 +13,6 @@ inline bool kF::ECS::SparseIndexSet<Type, PageSize, Null>::exists(const std::siz
 }
 
 template<std::integral Type, std::size_t PageSize, Type Null>
-template<typename ...Args>
 inline void kF::ECS::SparseIndexSet<Type, PageSize, Null>::add(const std::size_t index, const Type value) noexcept
 {
     const auto page = pageIndex(index);
@@ -37,6 +36,7 @@ inline Type kF::ECS::SparseIndexSet<Type, PageSize, Null>::remove(const std::siz
         throw std::logic_error("ECS::SparseIndexSet::remove: Index doesn't exists"));
     auto &value = at(index);
     const auto lastValue = value;
+
     value = Null;
     return lastValue;
 }
