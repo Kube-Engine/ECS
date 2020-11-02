@@ -17,7 +17,7 @@ namespace kF::ECS
 
 /** @brief Store all component tables of a registry */
 template<typename EntityType = kF::ECS::Entity>
-class kF::ECS::ComponentTables
+class alignas(16) kF::ECS::ComponentTables
 {
 public:
     /** @brief Construct the ComponentTables */

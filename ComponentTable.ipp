@@ -3,31 +3,43 @@
  * @ Description: ComponentTable
  */
 
+#include <stdexcept>
+
 template<typename Component, typename EntityType>
 template<typename ...Args>
-void kF::ECS::ComponentTable<Component, EntityType>::add(const EntityType entity, Args &&...args)
+inline void kF::ECS::ComponentTable<Component, EntityType>::add(const EntityType entity, Args &&...args) noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...))
 {
-    const std::size_t entityIndex = entity.index;
-
-    _indexes.add(entityIndex, entity);
+    _indexes.add(entity);
     _components.push(std::forward<Args>(args)...);
 }
 
 template<typename Component, typename EntityType>
-void kF::ECS::ComponentTable<Component, EntityType>::remove(const EntityType entity)
+inline void kF::ECS::ComponentTable<Component, EntityType>::remove(const EntityType entity) noexcept_ndebug
 {
-    const std::size_t entityIndex = entity.index;
-    auto lastIndex = _components.size() - 1;
-    auto lastEntity = std::move(_indexes.at(lastIndex));
-    auto lastComponent = std::move(_components.back());
+    kFAssert(_indexes.exists(entity),
+        throw std::range_error("ECS::ComponentTable::remove: Entity doesn't exists"));
 
-    // Destroy the component ??
+    // Move the last component to index given by sparse set
+    const auto lastIndex = _indexes.entityCount() - 1;
+    const auto toRemoveIndex = _indexes.remove(entity);
+    _components.at<false>(toRemoveIndex) = std::move(_components.at<false>(lastIndex)); // at<false> because we don't want checks
+    _components.pop(); // Remove the last one
+}
 
-    _indexes[entityIndex] = std::move(lastEntity);
-    _components[entityIndex] = std::move(lastComponent);
+template<typename Component, typename EntityType>
+inline void kF::ECS::ComponentTable<Component, EntityType>::clear(void)
+{
+    _components.clear();
+    _indexes.clear();
+}
 
-//    const auto componentIndex = _indexes.remove(entityIndex); // Utils ? componentIndex == entity.index
-    _indexes.remove(lastIndex); // But dont throw if entity isn't contained
-    _components.pop();
+template<typename Component, typename EntityType>
+inline const Component &kF::ECS::ComponentTable<Component, EntityType>::get(const EntityType entity) const noexcept_ndebug
+{
+    kFAssert(_indexes.exists(entity),
+        throw std::range_error("ECS::ComponentTable::get: Entity doesn't exists"));
 
+    const auto componentIndex = _indexes.at(entity);
+
+    return _components.at<false>(componentIndex); // at<false> because we don't want checks
 }

@@ -5,19 +5,16 @@
 
 #pragma once
 
+#include <numeric>
+
 #include <Kube/Core/Core.hpp>
 
 namespace kF::ECS
 {
-    struct Entity
-    {
-        std::uint8_t    version { 0u };
-        std::uint32_t   index : 24 { 0u };
-    };
+    using ShortEntity = std::uint16_t;
+    using Entity = std::uint32_t;
+    using LongEntity = std::uint64_t;
 
-    struct LongEntity
-    {
-        std::uint32_t version { 0u };
-        std::uint32_t index { 0u };
-    };
+    template<typename EntityType>
+    constexpr auto NullEntity = std::numeric_limits<EntityType>::max();
 }
