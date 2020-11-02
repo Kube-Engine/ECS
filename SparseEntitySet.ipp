@@ -9,9 +9,9 @@ inline bool kF::ECS::SparseEntitySet<EntityType, PageSize>::exists(const EntityT
     if (!_pages) [[unlikely]]
         return false;
     const auto page = PageIndex(index);
-    const auto it = _pages.begin<false>() + page;
+    const auto it = _pages.beginUnsafe() + page;
 
-    return page < _pages.size<false>() && (*it) && (*it)[ElementIndex(index)] != NullIndex;
+    return page < _pages.sizeUnsafe() && (*it) && (*it)[ElementIndex(index)] != NullIndex;
 }
 
 template<typename EntityType, EntityType PageSize>
@@ -50,7 +50,7 @@ inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Index kF::ECS::S
     const auto lastIndex = --_entityCount;
 
     // Move the last entity the removed index and pop the last one
-    const auto data = _flatset.data<false>(); // data<false> because we want to disable checks
+    const auto data = _flatset.dataUnsafe(); // dataUnsafe because we want to disable checks
     const auto lastEntity = data[lastIndex];
     data[index] = lastEntity;
     _flatset.erase(data + lastIndex); // Delete the last entity of the flat set
