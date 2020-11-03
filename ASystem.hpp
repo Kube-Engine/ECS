@@ -14,6 +14,9 @@ namespace kF::ECS
 {
     template <typename EntityType>
     class ASystem;
+
+    template <typename EntityType>
+    class Registry;
 }
 
 /** @brief An opaque system */
@@ -31,7 +34,7 @@ public:
 
 
     /** @brief Setup the system */
-    // virtual void setup(Registry<EntityType> &registry) = 0;
+    virtual void setup(Registry<EntityType> &registry) = 0;
 
     /** @brief Get dependecies of the system */
     [[nodiscard]] virtual std::vector<TypeID> dependencies(void) = 0;

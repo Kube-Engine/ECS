@@ -18,7 +18,7 @@ namespace kF::ECS
 
 /** @brief Used to create Entities, add Components to them, retrieve Systems etc... */
 template <typename EntityType>
-class alignas(128) Registry
+class KF_ALIGN_CACHELINE2 Registry
 {
 public:
     /** @brief Construct the Registry */
@@ -29,11 +29,19 @@ public:
 
 
     /** @brief Construct an empty entity */
-    [[nodiscard]] EntityType add(void) noexcept;
+    [[nodiscard("You may not discard an entity without components")]]
+    EntityType add(void) noexcept_ndebug;
+
+    /** @brief Construct an entity with one component binded */
+    template<typename Component, typename ...Args>
+    EntityType add(Args &&...args)
+        noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...))
+        { return add<Component>(Component(std::forward<Args>(args)...)); }
 
     /** @brief Construct an entity with several components binded */
     template<typename... Components>
-    EntityType add(Components &&... components);
+    EntityType add(Components &&... components)
+        noexcept(nothrow_ndebug && (nothrow_forward_constructible(Components)...));
 
 
     /** @brief Slow opaque entity erasure */
@@ -44,26 +52,26 @@ public:
     void remove(const EntityType entity);
 
 
-    /** @brief Add a single component to an entity  */
-    template<typename Component>
-    [[nodiscard]] Component attach(const EntityType entity);
-
     /** @brief Add a single component to an entity with a set of predefined arguments */
     template<typename Component, typename... Args>
-    void attach(const EntityType entity, Args &&... args);
+    Component &attach(const EntityType entity, Args &&... args)
+        noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...));
 
     /** @brief Add a set of components to an entity */
-    template<typename... Component>
-    void attach(const EntityType entity, Components &&... components);
+    template<typename... Components>
+    void attach(const EntityType entity, Components &&... components)
+        noexcept(nothrow_ndebug && (nothrow_constructible(Components)...));
 
 
     /** @brief Remove a single component from an entity */
     template<typename Component>
-    void detach(const EntityType entity);
+    void detach(const EntityType entity)
+        noexcept(nothrow_ndebug && nothrow_destructible(Component));
 
     /** @brief Remove a set of components from an entity */
-    template<typename... Component>
-    void detach(const EntityType entity);
+    template<typename... Components>
+    void detach(const EntityType entity)
+        noexcept(nothrow_ndebug && (nothrow_destructible(Components)...));
 
 
     /** @brief Clear the whole registry (components, systems, entities) */
@@ -71,30 +79,36 @@ public:
 
 
     /** @brief Create a view used to traverse entities matching a set of components */
-    template<typename... Component>
-    [[nodiscard]] View<EntityType, Component...> view(void) const;
+    template<typename... Components>
+    [[nodiscard]] View<EntityType, Component...> view(void) const noexcept_ndebug;
 
 
     /** @brief Retreive the component table list */
-    [[nodiscard]] ComponentTables &componentTables(void) { return _componentTables; };
+    [[nodiscard]] ComponentTables &componentTables(void) noexcept { return _componentTables; };
 
     /** @brief Retreive the component table list */
-    [[nodiscard]] const ComponentTables &componentTables(void) const { return _componentTables; };
+    [[nodiscard]] const ComponentTables &componentTables(void) const noexcept { return _componentTables; };
 
 
     /** @brief Retreive the graph of systems */
-    [[nodiscard]] SystemGraph &systemGraph(void) { return _systemGraph; };
+    [[nodiscard]] SystemGraph &systemGraph(void) noexcept { return _systemGraph; };
 
     /** @brief Retreive the graph of systems */
-    [[nodiscard]] const SystemGraph &systemGraph(void) const { return _systemGraph; };
+    [[nodiscard]] const SystemGraph &systemGraph(void) const noexcept { return _systemGraph; };
 
 
-    // Miss operators
+    /** @brief Implicit conversion to Flow::Graph, used for Scheduler */
+    [[nodiscard]] operator Flow::Graph &(void) noexcept { return _systemGraph.graph(); }
+    [[nodiscard]] operator const Flow::Graph &(void) const noexcept { return _systemGraph.graph(); }
 
 private:
-    ComponentTables<EntityType> _componentTables;
-    SystemGraph _systemGraph;
-
-    std::vector<EntityType> _entities;
-    EntityType _lastDestroyed;
+    struct KF_ALIGN_CACHELINE
+    {
+        ComponentTables<EntityType> _componentTables;
+        std::vector<EntityType> _entities;
+        EntityType _lastDestroyed;
+    };
+    KF_ALIGN_CACHELINE SystemGraph _systemGraph;
 };
+
+#include "Registry.ipp"

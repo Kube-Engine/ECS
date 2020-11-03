@@ -36,7 +36,7 @@ public:
     void add(const EntityType entity, Args &&...args) noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...));
 
     /** @brief Remove a component linked to a given entity */
-    void remove(const EntityType entity);
+    void remove(const EntityType entity) noexcept_ndebug;
 
     /** @brief Clear */
     void clear(void);
