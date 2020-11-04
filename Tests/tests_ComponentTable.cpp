@@ -11,5 +11,8 @@ using namespace kF;
 
 TEST(ComponentTable, Basics)
 {
+    ECS::ComponentTable<int> table;
+    ECS::Entity entity = 42;
 
+    ASSERT_EQ(table.add(entity, 24), 24);
 }

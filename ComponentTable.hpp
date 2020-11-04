@@ -33,7 +33,7 @@ public:
 
     /** @brief Add a component linked to a given entity */
     template<typename ...Args>
-    void add(const EntityType entity, Args &&...args) noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...));
+    Component &add(const EntityType entity, Args &&...args) noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...));
 
     /** @brief Remove a component linked to a given entity */
     void remove(const EntityType entity) noexcept_ndebug;

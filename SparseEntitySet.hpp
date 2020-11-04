@@ -20,7 +20,7 @@ namespace kF::ECS
 /** @brief The sparse index set is a container which provide O(1) look-up time at the cost of
  *  non-efficient memory consumption */
 template<typename EntityType, EntityType PageSize>
-class alignas(24) kF::ECS::SparseEntitySet
+class kF::ECS::SparseEntitySet
 {
 public:
     /** @brief An index is the same size as an entity */
