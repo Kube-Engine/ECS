@@ -3,6 +3,7 @@ project(KubeECS)
 get_filename_component(KubeECSDir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 set(KubeECSSources
+    ${KubeECSDir}/Dummy.cpp
     ${KubeECSDir}/Base.hpp
     ${KubeECSDir}/SparseEntitySet.hpp
     ${KubeECSDir}/SparseEntitySet.ipp

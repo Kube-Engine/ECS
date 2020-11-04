@@ -75,14 +75,14 @@ public:
 
 
     /** @brief Retreive the index of a page */
-    [[nodiscard]] static inline EntityType PageIndex(const EntityType entity) const noexcept { return entity / PageSize; }
+    [[nodiscard]] static inline EntityType PageIndex(const EntityType entity) noexcept { return entity / PageSize; }
 
     /** @brief Retreive the index of an element */
-    [[nodiscard]] static inline EntityType ElementIndex(const EntityType entity) const noexcept { return entity % PageSize; }
+    [[nodiscard]] static inline EntityType ElementIndex(const EntityType entity) noexcept { return entity % PageSize; }
 
 private:
     Core::FlatVector<Page> _pages {};
-    Core::FlatVector<Type> _flatset {};
+    Core::FlatVector<EntityType> _flatset {};
     EntityType _entityCount { 0ul };
 };
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <Core/FlatVector.hpp>
+#include <Kube/Core/FlatVector.hpp>
 
 #include "Base.hpp"
 #include "SparseEntitySet.hpp"
