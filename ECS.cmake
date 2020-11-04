@@ -24,6 +24,7 @@ target_link_libraries(${PROJECT_NAME}
 PUBLIC
     KubeCore
     KubeMeta
+    KubeFlow
 )
 
 if(${KF_TESTS})

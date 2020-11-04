@@ -28,7 +28,7 @@ public:
     using ConstIterator = Core::FlatVector<Component>::ConstIterator;
 
     /** @brief Size of a page (in elements, not in bytes) */
-    constexpr EntityType PageSize = 16384u / sizeof(EntityType);
+    static constexpr EntityType PageSize = 16384u / sizeof(EntityType);
 
 
     /** @brief Add a component linked to a given entity */
@@ -42,7 +42,7 @@ public:
     void clear(void);
 
     /** @brief Get the component of a given entity */
-    [[nodiscard]] Component &get(const EntityType entity) noexcept_ndebug { return const_cast<Component &>(const_cast<const ComponentTable &>(*this).get<Component>()); }
+    [[nodiscard]] Component &get(const EntityType entity) noexcept_ndebug { return const_cast<Component &>(const_cast<const ComponentTable &>(*this).get()); }
     [[nodiscard]] const Component &get(const EntityType entity) const noexcept_ndebug;
 
 
@@ -51,7 +51,7 @@ public:
     [[nodiscard]] ConstIterator begin(void) const noexcept { return _components.begin(); }
     [[nodiscard]] ConstIterator cbegin(void) const noexcept { return _components.cbegin(); }
     [[nodiscard]] Iterator end(void) noexcept { return _components.end(); }
-    [[nodiscard]] ConstIterator end(void) const noexcept { return _component.end(); }
+    [[nodiscard]] ConstIterator end(void) const noexcept { return _components.end(); }
     [[nodiscard]] ConstIterator cend(void) const noexcept { return _components.cend(); }
 
 private:

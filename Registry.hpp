@@ -7,6 +7,7 @@
 
 #include <vector>
 
+#include "View.hpp"
 #include "SystemGraph.hpp"
 #include "ComponentTables.hpp"
 
@@ -18,7 +19,7 @@ namespace kF::ECS
 
 /** @brief Used to create Entities, add Components to them, retrieve Systems etc... */
 template <typename EntityType>
-class KF_ALIGN_CACHELINE2 Registry
+class KF_ALIGN_CACHELINE2 kF::ECS::Registry
 {
 public:
     /** @brief Construct the Registry */
@@ -41,8 +42,7 @@ public:
     /** @brief Construct an entity with several components binded */
     template<typename... Components>
     EntityType add(Components &&... components)
-        noexcept(nothrow_ndebug && (nothrow_forward_constructible(Components)...));
-
+        noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)));
 
     /** @brief Slow opaque entity erasure */
     void remove(const EntityType entity);
@@ -60,7 +60,7 @@ public:
     /** @brief Add a set of components to an entity */
     template<typename... Components>
     void attach(const EntityType entity, Components &&... components)
-        noexcept(nothrow_ndebug && (nothrow_constructible(Components)...));
+        noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)));
 
 
     /** @brief Remove a single component from an entity */
@@ -71,7 +71,7 @@ public:
     /** @brief Remove a set of components from an entity */
     template<typename... Components>
     void detach(const EntityType entity)
-        noexcept(nothrow_ndebug && (nothrow_destructible(Components)...));
+        noexcept(nothrow_ndebug && (... && nothrow_destructible(Components)));
 
 
     /** @brief Clear the whole registry (components, systems, entities) */
@@ -80,21 +80,21 @@ public:
 
     /** @brief Create a view used to traverse entities matching a set of components */
     template<typename... Components>
-    [[nodiscard]] View<EntityType, Component...> view(void) const noexcept_ndebug;
+    [[nodiscard]] View<EntityType, Components...> view(void) const noexcept_ndebug;
 
 
     /** @brief Retreive the component table list */
-    [[nodiscard]] ComponentTables &componentTables(void) noexcept { return _componentTables; };
+    [[nodiscard]] ComponentTables<EntityType> &componentTables(void) noexcept { return _componentTables; };
 
     /** @brief Retreive the component table list */
-    [[nodiscard]] const ComponentTables &componentTables(void) const noexcept { return _componentTables; };
+    [[nodiscard]] const ComponentTables<EntityType> &componentTables(void) const noexcept { return _componentTables; };
 
 
     /** @brief Retreive the graph of systems */
-    [[nodiscard]] SystemGraph &systemGraph(void) noexcept { return _systemGraph; };
+    [[nodiscard]] SystemGraph<EntityType> &systemGraph(void) noexcept { return _systemGraph; };
 
     /** @brief Retreive the graph of systems */
-    [[nodiscard]] const SystemGraph &systemGraph(void) const noexcept { return _systemGraph; };
+    [[nodiscard]] const SystemGraph<EntityType> &systemGraph(void) const noexcept { return _systemGraph; };
 
 
     /** @brief Implicit conversion to Flow::Graph, used for Scheduler */
@@ -104,11 +104,11 @@ public:
 private:
     struct KF_ALIGN_CACHELINE
     {
-        ComponentTables<EntityType> _componentTables;
-        std::vector<EntityType> _entities;
-        EntityType _lastDestroyed;
+        ComponentTables<EntityType> _componentTables {};
+        std::vector<EntityType> _entities {};
+        EntityType _lastDestroyed { NullEntity<EntityType> };
     };
-    KF_ALIGN_CACHELINE SystemGraph _systemGraph;
+    KF_ALIGN_CACHELINE SystemGraph<EntityType> _systemGraph {};
 };
 
 #include "Registry.ipp"

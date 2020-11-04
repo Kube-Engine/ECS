@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 
+#include <Kube/Core/Assert.hpp>
 #include <Kube/Core/Utils.hpp>
 
 namespace kF::ECS

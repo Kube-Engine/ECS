@@ -20,8 +20,8 @@ class kF::ECS::View
 {
 public:
     /** @brief Construct the view */
-    View(Components &&...components) noexcept
-        : _tables(std::make_tuple<Components>(&components)...)) {}
+    View(Components *...components) noexcept
+        : _tables(std::make_tuple<Components *...>(components...)) {}
 
     /** @brief Copy constructor */
     View(const View &other) noexcept = default;
@@ -31,8 +31,8 @@ public:
 
     /** @brief Traverse the view and call 'func' for each match and return true if functor has been called at least once */
     template<typename Functor>
-    bool traverse(Functor &&func) noexcept_invokable(Functor);
+    bool traverse(Functor &&func);
 
 private:
-    std::tuple<ComponentTable<Component> *...> _tables;
+    std::tuple<ComponentTable<Components> *...> _tables;
 };
