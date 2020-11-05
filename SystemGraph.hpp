@@ -53,7 +53,7 @@ public:
 
 
     /** @brief Setup and build the system graph according to internal system dependencies */
-    void build(void);
+    void build(Registry<EntityType> &registry);
 
     /** @brief Clear all Systems from the Graph */
     void clear(void) noexcept;

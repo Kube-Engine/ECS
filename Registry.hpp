@@ -114,6 +114,10 @@ private:
 
     /** @brief Only remove an entity from _entities vector */
     void removeEntityFromRegistry(const EntityType entity) noexcept_ndebug;
+
+    /** @brief Unpack of component table detach operation */
+    template <std::size_t Index, typename... Components>
+    void detachUnpack(const EntityType entity) noexcept_ndebug;
 };
 
 #include "Registry.ipp"
