@@ -13,9 +13,10 @@ inline System &kF::ECS::SystemGraph<EntityType>::add(Args &&... args)
     kFAssert(exists<System>(),
         throw std::logical_error("ECS::SystemGraph: System already exists")
     );
-    _systems.emplace_back(
-        std::make_unique<System>(std::forward<Args>(args)...)
-    );
+
+    auto newSystem = std::make_unique<System>(std::forward<Args>(args)...);
+    _systems.emplace_back(newSystem);
+    _graph.emplace(newSystem.graph());
 }
 
 template<typename EntityType>
@@ -43,4 +44,11 @@ inline const System &kF::ECS::SystemGraph<EntityType>::get(void) const
         return *it;
     else [[unlikely]]
         throw std::logic_error("ECS::SystemGraph: System does not exists");
+}
+
+template<typename EntityType>
+inline void kF::ECS::SystemGraph<EntityType>::clear(void)
+{
+    _systems.clear();
+    _graph.clear();
 }

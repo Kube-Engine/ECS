@@ -45,11 +45,11 @@ public:
 
 
     /** @brief Slow opaque entity erasure */
-    void remove(const EntityType entity);
+    void remove(const EntityType entity) noexcept_ndebug;
 
     /** @brief Fast explicit entity erasure */
     template<typename... Components>
-    void remove(const EntityType entity);
+    void remove(const EntityType entity) noexcept_ndebug;
 
 
     /** @brief Add a single component to an entity with a set of predefined arguments */
@@ -104,11 +104,14 @@ public:
 private:
     struct KF_ALIGN_CACHELINE
     {
-        ComponentTables<EntityType> _componentTables;
-        std::vector<EntityType> _entities;
+        ComponentTables<EntityType> _componentTables {};
+        std::vector<EntityType> _entities {};
         EntityType _lastDestroyed;
     };
-    KF_ALIGN_CACHELINE SystemGraph _systemGraph;
+    KF_ALIGN_CACHELINE SystemGraph _systemGraph {};
+
+    /** @brief Retrieve the NullEntity in the entities buffer **/
+    EntityType &getNullEntity(const std::uint64_t index) noexcept;
 };
 
 #include "Registry.ipp"

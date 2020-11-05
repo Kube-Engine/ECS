@@ -56,7 +56,7 @@ public:
     void build(void);
 
     /** @brief Clear all Systems from the Graph */
-    void clear(void);
+    void clear(void) noexcept;
 
 
     /** @brief Get system's internal Graph */
