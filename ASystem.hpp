@@ -25,6 +25,7 @@ class kF::ECS::ASystem
 {
 public:
     using TypeID = std::type_info;
+    using Dependencies = std::vector<TypeID>;
 
     /** @brief Construct a new system using a TypeID */
     ASystem(const TypeID typeID) noexcept : _typeID(typeID) {};
@@ -37,7 +38,7 @@ public:
     virtual void setup(Registry<EntityType> &registry) = 0;
 
     /** @brief Get dependecies of the system */
-    [[nodiscard]] virtual std::vector<TypeID> dependencies(void) = 0;
+    [[nodiscard]] virtual Dependencies dependencies(void) = 0;
 
 
     /** @brief Get system's TypeID */
@@ -52,13 +53,13 @@ public:
 
 
     /** @brief Get system's internal Task */
-    [[nodiscard]] kF::Flow::Task &task(void) noexcept { return _node; };
+    [[nodiscard]] kF::Flow::Task &task(void) noexcept { return _task; };
 
     /** @brief Get system's internal Task */
-    [[nodiscard]] const kF::Flow::Task &task(void) const noexcept { return _node; };
+    [[nodiscard]] const kF::Flow::Task &task(void) const noexcept { return _task; };
 
 private:
     const TypeID _typeID;
     kF::Flow::Graph _graph {};
-    kF::Flow::Task _node {};
+    kF::Flow::Task _task {};
 };

@@ -28,10 +28,12 @@ public:
     /** @brief Destroy the Registry */
     ~Registry(void) = default;
 
+    /** @brief Check if an entity is defined inside the registry */
+    [[nodiscard]] bool exists(const EntityType entity) const noexcept { return _entities.size() < entity && _entities[entity] == entity; }
 
     /** @brief Construct an empty entity */
     [[nodiscard("You may not discard an entity without components")]]
-    EntityType add(void) noexcept_ndebug;
+    EntityType add(void) noexcept;
 
     /** @brief Construct an entity with one component binded */
     template<typename Component, typename ...Args>
@@ -110,8 +112,8 @@ private:
     };
     KF_ALIGN_CACHELINE SystemGraph<EntityType> _systemGraph {};
 
-    /** @brief Retrieve the NullEntity in the entities buffer **/
-    EntityType &getNullEntity(const std::uint64_t index) noexcept;
+    /** @brief Only remove an entity from _entities vector */
+    void removeEntityFromRegistry(const EntityType entity) noexcept_ndebug;
 };
 
 #include "Registry.ipp"

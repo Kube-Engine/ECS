@@ -47,6 +47,37 @@ inline const System &kF::ECS::SystemGraph<EntityType>::get(void) const
 }
 
 template<typename EntityType>
+inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &registry)
+{
+    if (_sytems.size() == 0ul)
+        throw std::logic_error("ECS::SystemGraph::build: No system in graph");
+
+    std::vector<std::pair<ASystem *, ASystem::Dependencies>> systemsOrder;
+
+    systemsOrder.reserve(_systems.size());
+    _graph.clear();
+    // Collect data over each systems
+    for (auto &system : _systems) {
+        system->setup(registry);
+        system->task() = _graph.emplace(system->graph());
+        systemsOrder.emplace_back(system.get(), system->dependencies());
+    }
+
+    // Use vector data to determine the sequential order of systems
+    // hint: use ASystem::typeID() to check dependencies
+
+    // Build the sequential graph
+    auto current = systemsOrder.begin();
+    auto next = current + 1;
+    const auto end = systemsOrder.end();
+    while (next != end) {
+        current->first->task().precede(next->first->task());
+        ++current;
+        ++next;
+    }
+}
+
+template<typename EntityType>
 inline void kF::ECS::SystemGraph<EntityType>::clear(void)
 {
     _systems.clear();

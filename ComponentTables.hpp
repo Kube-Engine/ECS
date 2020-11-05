@@ -49,6 +49,9 @@ public:
     /** @brief Get the number of ComponentTable stored internally */
     [[nodiscard]] std::size_t size(void) const noexcept { return _size; }
 
+    /** @brief Removes an entity from every opaque table */
+    void removeEntity(const EntityType entity);
+
     /** @brief Clear every table and remove them */
     void clear(void);
 

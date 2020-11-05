@@ -20,8 +20,8 @@ class kF::ECS::View
 {
 public:
     /** @brief Construct the view */
-    View(Components *...components) noexcept
-        : _tables(std::make_tuple<Components *...>(components...)) {}
+    View(ComponentTable<Components> &...components) noexcept
+        : _tables(std::make_tuple<ComponentTable<Components> *...>(&components...)) {}
 
     /** @brief Copy constructor */
     View(const View &other) noexcept = default;
