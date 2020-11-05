@@ -15,7 +15,7 @@ inline EntityType kF::ECS::Registry<EntityType>::add(void) noexcept_ndebug
 template<typename EntityType>
 template<typename... Components>
 inline EntityType kF::ECS::Registry<EntityType>::add(Components &&... components)
-    noexcept(nothrow_ndebug && (nothrow_forward_constructible(Components)...))
+    noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)))
 {
     EntityType newEntity = EntityType();
     if (_lastDestroyed == undefined) {
@@ -87,8 +87,9 @@ inline void kF::ECS::Registry<EntityType>::remove(const EntityType entity) noexc
 
 }
 
+template<typename EntityType>
 template<typename Component, typename... Args>
-Component &kF::ECS::Registry<EntityType>::attach(const EntityType entity, Args &&... args)
+inline Component &kF::ECS::Registry<EntityType>::attach(const EntityType entity, Args &&... args)
     noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...))
 {
     if (_componentTables.tableExists<Component>() == false) {
@@ -101,9 +102,10 @@ Component &kF::ECS::Registry<EntityType>::attach(const EntityType entity, Args &
     return componentTable.get(entity);
 }
 
+template<typename EntityType>
 template<typename... Components>
 inline void kF::ECS::Registry<EntityType>::attach(const EntityType entity, Components &&... components)
-    noexcept(nothrow_ndebug && (nothrow_constructible(Components)...))
+    noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)))
 {
     for (auto component : components) {
         std::type_info componentType = typeid(component);
@@ -127,7 +129,7 @@ inline void kF::ECS::Registry<EntityType>::detach(const EntityType entity)
 template<typename EntityType>
 template<typename... Components>
 inline void kF::ECS::Registry<EntityType>::detach(const EntityType entity)
-    noexcept(nothrow_ndebug && (nothrow_destructible(Components)...))
+    noexcept(nothrow_ndebug && (... && nothrow_destructible(Components)))
 {
 
 }
@@ -140,7 +142,7 @@ inline void kF::ECS::Registry<EntityType>::clear(void)
 
 template<typename EntityType>
 template<typename... Components>
-inline kF::ECS::View<EntityType, Component...> kF::ECS::Registry<EntityType>::view(void) const noexcept_ndebug
+inline kF::ECS::View<EntityType, Components...> kF::ECS::Registry<EntityType>::view(void) const noexcept_ndebug
 {
 
 }

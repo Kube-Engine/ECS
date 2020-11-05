@@ -7,10 +7,10 @@
 
 template<typename Component, typename EntityType>
 template<typename ...Args>
-inline void kF::ECS::ComponentTable<Component, EntityType>::add(const EntityType entity, Args &&...args) noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...))
+inline Component &kF::ECS::ComponentTable<Component, EntityType>::add(const EntityType entity, Args &&...args) noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...))
 {
     _indexes.add(entity);
-    _components.push(std::forward<Args>(args)...);
+    return _components.push(std::forward<Args>(args)...);
 }
 
 template<typename Component, typename EntityType>

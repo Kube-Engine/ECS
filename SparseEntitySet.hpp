@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 
+#include <Kube/Core/Assert.hpp>
 #include <Kube/Core/Utils.hpp>
 
 namespace kF::ECS
@@ -19,7 +20,7 @@ namespace kF::ECS
 /** @brief The sparse index set is a container which provide O(1) look-up time at the cost of
  *  non-efficient memory consumption */
 template<typename EntityType, EntityType PageSize>
-class alignas(24) kF::ECS::SparseEntitySet
+class kF::ECS::SparseEntitySet
 {
 public:
     /** @brief An index is the same size as an entity */
@@ -75,14 +76,14 @@ public:
 
 
     /** @brief Retreive the index of a page */
-    [[nodiscard]] static inline EntityType PageIndex(const EntityType entity) const noexcept { return entity / PageSize; }
+    [[nodiscard]] static inline EntityType PageIndex(const EntityType entity) noexcept { return entity / PageSize; }
 
     /** @brief Retreive the index of an element */
-    [[nodiscard]] static inline EntityType ElementIndex(const EntityType entity) const noexcept { return entity % PageSize; }
+    [[nodiscard]] static inline EntityType ElementIndex(const EntityType entity) noexcept { return entity % PageSize; }
 
 private:
     Core::FlatVector<Page> _pages {};
-    Core::FlatVector<Type> _flatset {};
+    Core::FlatVector<EntityType> _flatset {};
     EntityType _entityCount { 0ul };
 };
 

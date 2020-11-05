@@ -38,7 +38,7 @@ inline void kF::ECS::ComponentTables<EntityType>::add(void) noexcept_ndebug
 template<typename EntityType>
 inline bool kF::ECS::ComponentTables<EntityType>::tableExists(const Meta::Type type) const noexcept
 {
-    auto it = reinterpret_cast<Meta::Type>(_data.get());
+    auto it = getTypeData();
     const auto end = it + _size;
 
     while (it != end) {
@@ -60,7 +60,7 @@ inline const kF::ECS::ComponentTable<Component> &kF::ECS::ComponentTables<Entity
     constexpr auto TableSize = sizeof(Table);
 
     const auto type = Meta::Factory<Component>::Resolve();
-    const auto begin = reinterpret_cast<Meta::Type>(_data.get());
+    const auto begin = getTypeData();
     const auto end = begin + _size;
     auto it = begin;
 
