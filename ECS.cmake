@@ -23,7 +23,6 @@ add_library(${PROJECT_NAME} ${KubeECSSources})
 target_link_libraries(${PROJECT_NAME}
 PUBLIC
     KubeCore
-    KubeMeta
     KubeFlow
 )
 

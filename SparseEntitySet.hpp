@@ -5,11 +5,15 @@
 
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <array>
+#include <cstdlib>
 
 #include <Kube/Core/Assert.hpp>
 #include <Kube/Core/Utils.hpp>
+#include <Kube/Core/Vector.hpp>
+
+#include "Base.hpp"
 
 namespace kF::ECS
 {
@@ -26,11 +30,14 @@ public:
     /** @brief An index is the same size as an entity */
     using Index = EntityType;
 
-    /** @brief A page indexes */
-    using Page = Index[PageSize];
+    /** @brief Helper used to delete pages */
+    struct PageDeleter
+    {
+        void operator()(Index *page) const noexcept { std::free(page); }
+    };
 
-    /** @brief Unique pointer to page */
-    using PagePtr = std::unique_ptr<Page>;
+    /** @brief Page containing indexes */
+    using Page = std::unique_ptr<Index[], PageDeleter>;
 
     /** @brief A null index */
     static constexpr auto NullIndex = NullEntity<EntityType>;
@@ -69,10 +76,10 @@ public:
 
 
     /** @brief Get internal iterable flat set */
-    [[nodiscard]] const Core::FlatVector<EntityType> &flatset(void) const noexcept { return _flatset; }
+    [[nodiscard]] const Core::Vector<EntityType, EntityType> &flatset(void) const noexcept { return _flatset; }
 
     /** @brief Get the entity count */
-    [[nodiscard]] EntityType entityCount(void) const noexcept { return _entityCount; }
+    [[nodiscard]] EntityType entityCount(void) const noexcept { return _flatset.size(); }
 
 
     /** @brief Retreive the index of a page */
@@ -81,10 +88,12 @@ public:
     /** @brief Retreive the index of an element */
     [[nodiscard]] static inline EntityType ElementIndex(const EntityType entity) noexcept { return entity % PageSize; }
 
-private:
-    Core::FlatVector<Page> _pages {};
-    Core::FlatVector<EntityType> _flatset {};
-    EntityType _entityCount { 0ul };
+private: // The structure size will vary depending of EntityType, from 32 to 40 bytes
+    Core::Vector<Page, std::uint32_t> _pages {};
+    Core::Vector<EntityType, EntityType> _flatset {};
+
+    /** @brief Make a new page */
+    [[nodiscard]] static Page MakePage(void) noexcept;
 };
 
 #include "SparseEntitySet.ipp"

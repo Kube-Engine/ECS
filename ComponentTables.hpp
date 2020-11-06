@@ -5,9 +5,11 @@
 
 #pragma once
 
-#include <Kube/Meta/Type.hpp>
+#include <array>
 
-#include "ComponentTable.hpp"
+#include <Kube/Core/Vector.hpp>
+
+#include "OpaqueTable.hpp"
 
 namespace kF::ECS
 {
@@ -16,10 +18,16 @@ namespace kF::ECS
 }
 
 /** @brief Store all component tables of a registry */
-template<typename EntityType = kF::ECS::Entity>
+template<typename EntityType>
 class alignas(16) kF::ECS::ComponentTables
 {
 public:
+    static constexpr std::size_t ComponentTableSize = sizeof(ComponentTable<std::nullptr_t, EntityType>);
+
+    /** @brief Helper types */
+    using OpaqueTable = const OpaqueComponentTable<EntityType> *;
+    using RemoveFunc = OpaqueComponentTable<EntityType>::RemoveFunc;
+
     /** @brief Construct the ComponentTables */
     ComponentTables(void) noexcept = default;
 
@@ -32,22 +40,22 @@ public:
 
     /** @brief Check if a ComponentTable is registered internally using explicit type */
     template<typename Component>
-    [[nodiscard]] bool tableExists(void) const noexcept { return tableExists(Meta::Factory<Component>::Resolve()); }
+    [[nodiscard]] bool tableExists(void) const noexcept { return tableExists(GetOpaqueComponentTable<Component, EntityType>()); }
 
     /** @brief Check if a ComponentTable is registered internally using an opaque type */
-    [[nodiscard]] bool tableExists(const Meta::Type type) const noexcept;
+    [[nodiscard]] bool tableExists(const OpaqueTable opaqueTable) const noexcept;
 
     /** @brief Get a ComponentTable casted to the right component */
     template<typename Component>
-    [[nodiscard]] ComponentTable<Component> &getTable(void) const noexcept_ndebug
-        { return const_cast<ComponentTable<Component> &>(const_cast<const ComponentTables &>(*this).getTable<Component>()); }
+    [[nodiscard]] ComponentTable<Component, EntityType> &getTable(void) noexcept_ndebug
+        { return const_cast<ComponentTable<Component, EntityType> &>(const_cast<const ComponentTables<EntityType> &>(*this).getTable<Component>()); }
 
     /** @brief Get a ComponentTable casted to the right component */
     template<typename Component>
-    [[nodiscard]] const ComponentTable<Component> &getTable(void) const noexcept_ndebug;
+    [[nodiscard]] const ComponentTable<Component, EntityType> &getTable(void) const noexcept_ndebug;
 
     /** @brief Get the number of ComponentTable stored internally */
-    [[nodiscard]] std::size_t size(void) const noexcept { return _size; }
+    [[nodiscard]] std::size_t size(void) const noexcept { return _opaqueTables.size(); }
 
     /** @brief Removes an entity from every opaque table */
     void removeEntity(const EntityType entity);
@@ -56,11 +64,9 @@ public:
     void clear(void);
 
 private:
-    std::unique_ptr<std::byte[]> _data {};
-    std::size_t _size { 0ul };
-
-    [[nodiscard]] Meta::Type *getTypeData(void) noexcept { return reinterpret_cast<Meta::Type *>(_data.get()); }
-    [[nodiscard]] const Meta::Type *getTypeData(void) const noexcept { return reinterpret_cast<Meta::Type *>(_data.get()); }
+    Core::TinyVector<OpaqueTable> _opaqueTables {};
+    Core::TinyVector<RemoveFunc> _removeFuncs {};
+    Core::TinyVector<std::array<std::byte, ComponentTableSize>> _tables {};
 };
 
 #include "ComponentTables.ipp"

@@ -5,9 +5,6 @@
 
 #pragma once
 
-#include <Kube/Core/FlatVector.hpp>
-
-#include "Base.hpp"
 #include "SparseEntitySet.hpp"
 
 namespace kF::ECS
@@ -17,32 +14,42 @@ namespace kF::ECS
 }
 
 /** @brief Store all instances of a component type in a registry */
-template <typename Component, typename EntityType = kF::ECS::Entity>
-class alignas(32) kF::ECS::ComponentTable
+template <typename Component, typename EntityType>
+class KF_ALIGN_CACHELINE kF::ECS::ComponentTable
 {
 public:
-    /** @brief Iterator over components */
-    using Iterator = Core::FlatVector<Component>::Iterator;
-
-    /** @brief Readonly iterator over components */
-    using ConstIterator = Core::FlatVector<Component>::ConstIterator;
-
     /** @brief Size of a page (in elements, not in bytes) */
     static constexpr EntityType PageSize = 16384u / sizeof(EntityType);
 
+    /** @brief Vector of components */
+    using Components = Core::Vector<Component, EntityType>;
+
+    /** @brief Iterator over components */
+    using Iterator = Components::Iterator;
+
+    /** @brief Readonly iterator over components */
+    using ConstIterator = Components::ConstIterator;
+
+    /** @brief Check if an entity exists in the table */
+    [[nodiscard]] bool exists(const EntityType entity) const noexcept { return _indexes.exists(entity); }
+
     /** @brief Add a component linked to a given entity */
     template <typename... Args>
-    Component &add(const EntityType entity, Args &&... args) noexcept(nothrow_ndebug &&nothrow_constructible(Component, Args...));
+    Component &add(const EntityType entity, Args &&... args)
+        noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...));
 
     /** @brief Remove a component linked to a given entity */
-    void remove(const EntityType entity) noexcept_ndebug;
+    void remove(const EntityType entity)
+        noexcept(nothrow_ndebug && nothrow_destructible(Component));
+
+    /** @brief Get the component of a given entity */
+    [[nodiscard]] Component &get(const EntityType entity) noexcept_ndebug
+        { return const_cast<Component &>(const_cast<const ComponentTable &>(*this).get(entity)); }
+    [[nodiscard]] const Component &get(const EntityType entity) const noexcept_ndebug;
 
     /** @brief Clear */
     void clear(void);
 
-    /** @brief Get the component of a given entity */
-    [[nodiscard]] Component &get(const EntityType entity) noexcept_ndebug { return const_cast<Component &>(const_cast<const ComponentTable &>(*this).get()); }
-    [[nodiscard]] const Component &get(const EntityType entity) const noexcept_ndebug;
 
     /** @brief Begin / end iterators */
     [[nodiscard]] Iterator begin(void) noexcept { return _components.begin(); }
@@ -54,7 +61,16 @@ public:
 
 private:
     SparseEntitySet<EntityType, PageSize> _indexes{};
-    Core::FlatVector<Component> _components{};
+    Components _components{};
 };
+
+static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be the size of a cacheline");
+static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
+
+static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be the size of a cacheline");
+static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
+
+static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be the size of a cacheline");
+static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
 
 #include "ComponentTable.ipp"

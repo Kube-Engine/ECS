@@ -4,6 +4,8 @@ get_filename_component(KubeECSTestsDir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 set(KubeECSTestsSources
     ${KubeECSTestsDir}/tests_ComponentTable.cpp
+    ${KubeECSTestsDir}/tests_ComponentTables.cpp
+    ${KubeECSTestsDir}/tests_Registry.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${KubeECSTestsSources})

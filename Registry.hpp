@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <vector>
-
 #include "View.hpp"
 #include "SystemGraph.hpp"
 #include "ComponentTables.hpp"
@@ -27,6 +25,12 @@ public:
 
     /** @brief Destroy the Registry */
     ~Registry(void) = default;
+
+
+    /** @brief Register a component type into the registry */
+    template<typename Component>
+    void registerComponent(void) noexcept_ndebug { _componentTables.template add<Component>(); }
+
 
     /** @brief Check if an entity is defined inside the registry */
     [[nodiscard]] bool exists(const EntityType entity) const noexcept { return _entities.size() < entity && _entities[entity] == entity; }
@@ -60,7 +64,7 @@ public:
         noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...));
 
     /** @brief Add a set of components to an entity */
-    template<typename... Components>
+    template<typename... Components> requires (sizeof...(Components) > 1)
     void attach(const EntityType entity, Components &&... components)
         noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)));
 
@@ -71,10 +75,9 @@ public:
         noexcept(nothrow_ndebug && nothrow_destructible(Component));
 
     /** @brief Remove a set of components from an entity */
-    template<typename... Components>
+    template<typename... Components> requires (sizeof...(Components) > 1)
     void detach(const EntityType entity)
         noexcept(nothrow_ndebug && (... && nothrow_destructible(Components)));
-
 
     /** @brief Clear the whole registry (components, systems, entities) */
     void clear(void);
@@ -107,17 +110,14 @@ private:
     struct KF_ALIGN_CACHELINE
     {
         ComponentTables<EntityType> _componentTables {};
-        std::vector<EntityType> _entities {};
+        Core::Vector<EntityType, EntityType> _entities {};
         EntityType _lastDestroyed { NullEntity<EntityType> };
     };
     KF_ALIGN_CACHELINE SystemGraph<EntityType> _systemGraph {};
 
     /** @brief Only remove an entity from _entities vector */
     void removeEntityFromRegistry(const EntityType entity) noexcept_ndebug;
-
-    /** @brief Unpack of component table detach operation */
-    template <std::size_t Index, typename... Components>
-    void detachUnpack(const EntityType entity) noexcept_ndebug;
 };
 
+#include "SystemGraph.hpp"
 #include "Registry.ipp"

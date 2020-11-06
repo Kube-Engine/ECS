@@ -20,8 +20,8 @@ class kF::ECS::View
 {
 public:
     /** @brief Construct the view */
-    View(ComponentTable<Components> &...components) noexcept
-        : _tables(std::make_tuple<ComponentTable<Components> *...>(&components...)) {}
+    View(ComponentTable<Components, EntityType> &...components) noexcept
+        : _tables(std::make_tuple<ComponentTable<Components, EntityType> *...>(&components...)) {}
 
     /** @brief Copy constructor */
     View(const View &other) noexcept = default;
@@ -34,5 +34,5 @@ public:
     bool traverse(Functor &&func);
 
 private:
-    std::tuple<ComponentTable<Components> *...> _tables;
+    std::tuple<ComponentTable<Components, EntityType> *...> _tables;
 };
