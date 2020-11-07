@@ -3,6 +3,7 @@ project(KubeECSTests)
 get_filename_component(KubeECSTestsDir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
 set(KubeECSTestsSources
+    ${KubeECSTestsDir}/tests_SparseEntitySet.cpp
     ${KubeECSTestsDir}/tests_ComponentTable.cpp
     ${KubeECSTestsDir}/tests_ComponentTables.cpp
     ${KubeECSTestsDir}/tests_Registry.cpp

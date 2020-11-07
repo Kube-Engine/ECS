@@ -42,6 +42,9 @@ public:
     void remove(const EntityType entity)
         noexcept(nothrow_ndebug && nothrow_destructible(Component));
 
+    /** @brief Get all entities */
+    [[nodiscard]] const Core::Vector<EntityType, EntityType> &getEntities(void) const noexcept { return _indexes.flatset(); }
+
     /** @brief Get the component of a given entity */
     [[nodiscard]] Component &get(const EntityType entity) noexcept_ndebug
         { return const_cast<Component &>(const_cast<const ComponentTable &>(*this).get(entity)); }
@@ -50,6 +53,8 @@ public:
     /** @brief Clear */
     void clear(void);
 
+    /** @brief Get the size of the table */
+    [[nodiscard]] std::size_t size(void) noexcept { return _components.size(); }
 
     /** @brief Begin / end iterators */
     [[nodiscard]] Iterator begin(void) noexcept { return _components.begin(); }
