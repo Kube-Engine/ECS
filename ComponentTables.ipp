@@ -58,7 +58,7 @@ template <typename EntityType>
 inline void kF::ECS::ComponentTables<EntityType>::clear(void)
 {
     for (auto i = 0ul; const auto it : _opaqueTables) {
-        (*(*it)->destroyFunc)(&_tables.at(i));
+        (*it->destroyFunc)(&_tables.at(i));
         ++i;
     }
     _opaqueTables.clear();

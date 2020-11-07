@@ -64,13 +64,13 @@ private:
     Components _components{};
 };
 
-static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be the size of a cacheline");
-static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
+static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::CacheLineSize, "ComponentTable must be the size of a cacheline");
+static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
 
-static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be the size of a cacheline");
-static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
+static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::CacheLineSize, "ComponentTable must be the size of a cacheline");
+static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
 
-static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be the size of a cacheline");
-static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::Utils::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
+static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::CacheLineSize, "ComponentTable must be the size of a cacheline");
+static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
 
 #include "ComponentTable.ipp"

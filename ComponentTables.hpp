@@ -8,6 +8,7 @@
 #include <array>
 
 #include <Kube/Core/Vector.hpp>
+#include <Kube/Core/FlatVector.hpp>
 
 #include "OpaqueTable.hpp"
 
@@ -19,7 +20,7 @@ namespace kF::ECS
 
 /** @brief Store all component tables of a registry */
 template<typename EntityType>
-class alignas(16) kF::ECS::ComponentTables
+class KF_ALIGN_HALF_CACHELINE kF::ECS::ComponentTables
 {
 public:
     static constexpr std::size_t ComponentTableSize = sizeof(ComponentTable<std::nullptr_t, EntityType>);
@@ -32,7 +33,7 @@ public:
     ComponentTables(void) noexcept = default;
 
     /** @brief Destroy the ComponentTables */
-    ~ComponentTables(void) = default;
+    ~ComponentTables(void) { clear(); }
 
     /** @brief Add a ComponentTable to internal list */
     template<typename Component>
@@ -65,8 +66,15 @@ public:
 
 private:
     Core::TinyVector<OpaqueTable> _opaqueTables {};
-    Core::TinyVector<RemoveFunc> _removeFuncs {};
-    Core::TinyVector<std::array<std::byte, ComponentTableSize>> _tables {};
+    Core::FlatVector<RemoveFunc, std::uint32_t> _removeFuncs {};
+    Core::FlatVector<std::array<std::byte, ComponentTableSize>> _tables {};
 };
+
+static_assert(sizeof(kF::ECS::ComponentTables<kF::ECS::ShortEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must take half a cacheline");
+static_assert(alignof(kF::ECS::ComponentTables<kF::ECS::ShortEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must be aligned to half a cacheline");
+static_assert(sizeof(kF::ECS::ComponentTables<kF::ECS::Entity>) == kF::Core::CacheLineSize / 2, "ComponentTables must take half a cacheline");
+static_assert(alignof(kF::ECS::ComponentTables<kF::ECS::Entity>) == kF::Core::CacheLineSize / 2, "ComponentTables must be aligned to half a cacheline");
+static_assert(sizeof(kF::ECS::ComponentTables<kF::ECS::LongEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must take half a cacheline");
+static_assert(alignof(kF::ECS::ComponentTables<kF::ECS::LongEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must be aligned to half a cacheline");
 
 #include "ComponentTables.ipp"

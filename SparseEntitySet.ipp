@@ -38,8 +38,7 @@ inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Index
         *it = MakePage();
     } else if (!*it) [[unlikely]] {
         *it = MakePage();
-    } else
-        it = _pages.begin() + page;
+    }
     (*it)[ElementIndex(entity)] = index;
     return index;
 }
@@ -75,10 +74,14 @@ inline void kF::ECS::SparseEntitySet<EntityType, PageSize>::clear(void) noexcept
 
 template<typename EntityType, EntityType PageSize>
 inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Page
-    kF::ECS::SparseEntitySet<EntityType, PageSize>::MakePage(void) noexcept
+    kF::ECS::SparseEntitySet<EntityType, PageSize>::MakePage(void) noexcept_ndebug
 {
-    Index * const data = reinterpret_cast<Index *>(std::aligned_alloc(alignof(Index), sizeof(Index) * PageSize));
+    Index * const data = reinterpret_cast<Index *>(
+        std::aligned_alloc(std::max(alignof(Index), alignof(std::max_align_t)), sizeof(Index) * PageSize)
+    );
 
+    kFAssert(data,
+        throw std::runtime_error("ECS::SparseEntitySet::MakePage: Invalid aligned_alloc"));
     std::uninitialized_default_construct_n(data, PageSize);
     return Page(data);
 }

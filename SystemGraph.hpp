@@ -22,7 +22,7 @@ namespace kF::ECS
 
 /** @brief A Flow Graph of system(s) */
 template <typename EntityType>
-class alignas(32) kF::ECS::SystemGraph
+class KF_ALIGN_HALF_CACHELINE kF::ECS::SystemGraph
 {
 public:
     /** @brief Construct the System Graph */
@@ -70,7 +70,11 @@ private:
     std::vector<kF::ECS::SystemPtr<EntityType>> _systems {};
 };
 
-static_assert(sizeof(kF::ECS::SystemGraph<kF::ECS::Entity>) == 32, "SystemGraph must take 32 bytes");
-static_assert(sizeof(kF::ECS::SystemGraph<kF::ECS::LongEntity>) == 32, "SystemGraph must take 32 bytes");
+static_assert(sizeof(kF::ECS::SystemGraph<kF::ECS::ShortEntity>) == kF::Core::CacheLineHalfSize, "SystemGraph must take the half of a cacheline");
+static_assert(alignof(kF::ECS::SystemGraph<kF::ECS::ShortEntity>) == kF::Core::CacheLineHalfSize, "SystemGraph must be aligned to the half of a cacheline");
+static_assert(sizeof(kF::ECS::SystemGraph<kF::ECS::Entity>) == kF::Core::CacheLineHalfSize, "SystemGraph must take the half of a cacheline");
+static_assert(alignof(kF::ECS::SystemGraph<kF::ECS::Entity>) == kF::Core::CacheLineHalfSize, "SystemGraph must be aligned to the half of a cacheline");
+static_assert(sizeof(kF::ECS::SystemGraph<kF::ECS::LongEntity>) == kF::Core::CacheLineHalfSize, "SystemGraph must take the half of a cacheline");
+static_assert(alignof(kF::ECS::SystemGraph<kF::ECS::LongEntity>) == kF::Core::CacheLineHalfSize, "SystemGraph must be aligned to the half of a cacheline");
 
 #include "SystemGraph.ipp"

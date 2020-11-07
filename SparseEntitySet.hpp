@@ -93,7 +93,7 @@ private: // The structure size will vary depending of EntityType, from 32 to 40 
     Core::Vector<EntityType, EntityType> _flatset {};
 
     /** @brief Make a new page */
-    [[nodiscard]] static Page MakePage(void) noexcept;
+    [[nodiscard]] static Page MakePage(void) noexcept_ndebug;
 };
 
 #include "SparseEntitySet.ipp"
