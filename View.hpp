@@ -31,8 +31,17 @@ public:
 
     /** @brief Traverse the view and call 'func' for each match and return true if functor has been called at least once */
     template<typename Functor>
-    bool traverse(Functor &&func);
+    bool traverse(Functor &&func) const;
+
+    /** @brief Traverse the view and call 'func' for each match and return true if functor has been called at least once. Enforce the iteration order in case of Component */
+    template<typename Functor, typename Component>
+    bool traverse(Functor &&func) const;
 
 private:
+    template<typename Component>
+    [[nodiscard]] const Component &getComponentOf(EntityType entity) const noexcept;
+
     std::tuple<ComponentTable<Components, EntityType> *...> _tables;
 };
+
+#include "View.ipp"
