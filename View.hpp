@@ -34,7 +34,7 @@ public:
     bool traverse(Functor &&func) const;
 
     /** @brief Traverse the view and call 'func' for each match and return true if functor has been called at least once. Enforce the iteration order in case of Component */
-    template<typename Functor, typename Component>
+    template<typename Component, typename Functor>
     bool traverse(Functor &&func) const;
 
 private:

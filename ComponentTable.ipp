@@ -19,7 +19,7 @@ template <typename Component, typename EntityType>
 inline void kF::ECS::ComponentTable<Component, EntityType>::remove(const EntityType entity) noexcept(nothrow_ndebug && nothrow_destructible(Component))
 {
     kFAssert(_indexes.exists(entity),
-        throw std::range_error("ECS::ComponentTable::remove: Entity doesn't exists"));
+        throw std::logic_error("ECS::ComponentTable::remove: Entity doesn't exists"));
 
     // Move the last component to index given by sparse set
     const auto lastIndex = _indexes.entityCount() - 1;
@@ -32,7 +32,7 @@ template <typename Component, typename EntityType>
 inline const Component &kF::ECS::ComponentTable<Component, EntityType>::get(const EntityType entity) const noexcept_ndebug
 {
     kFAssert(_indexes.exists(entity),
-        throw std::range_error("ECS::ComponentTable::get: Entity doesn't exists"));
+        throw std::logic_error("ECS::ComponentTable::get: Entity doesn't exists"));
 
     return _components.at(_indexes.at(entity));
 }

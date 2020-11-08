@@ -7,6 +7,7 @@ set(KubeECSTestsSources
     ${KubeECSTestsDir}/tests_ComponentTable.cpp
     ${KubeECSTestsDir}/tests_ComponentTables.cpp
     ${KubeECSTestsDir}/tests_Registry.cpp
+    ${KubeECSTestsDir}/tests_View.cpp
 )
 
 add_executable(${CMAKE_PROJECT_NAME} ${KubeECSTestsSources})

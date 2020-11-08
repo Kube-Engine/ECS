@@ -82,6 +82,6 @@ inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Page
 
     kFAssert(data,
         throw std::runtime_error("ECS::SparseEntitySet::MakePage: Invalid aligned_alloc"));
-    std::uninitialized_default_construct_n(data, PageSize);
+    std::uninitialized_fill_n(data, PageSize, NullIndex);
     return Page(data);
 }

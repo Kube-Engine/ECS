@@ -3,21 +3,21 @@
  * @ Description: ECS View
  */
 
-#include "View.hpp"
-
 template<typename EntityType, typename ...Components>
 template<typename Functor>
 bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) const
 {
-    const auto table = std::min(_tables, [](const auto *first, const auto *second) {
+    const auto entities = std::min({std::get<ComponentTable<Components, EntityType> *>(_tables)->getEntities()...}, [](const auto first, const auto second) {
         return first.size() < second.size();
     });
+    bool success = false;
 
-    return ((std::get<ComponentTable<Components, EntityType> *>(_tables) == table ? traverse<Components>(std::move(func)) : void()), ...);
+    ((std::get<ComponentTable<Components, EntityType> *>(_tables)->getEntities() == entities ? success = traverse<Components>(std::move(func)) : bool()), ...);
+    return success;
 }
 
 template<typename EntityType, typename ...Components>
-template<typename Functor, typename Component>
+template<typename Component, typename Functor>
 bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) const
 {
     bool success = false;
