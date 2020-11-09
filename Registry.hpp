@@ -17,7 +17,7 @@ namespace kF::ECS
 
 /** @brief Used to create Entities, add Components to them, retrieve Systems etc... */
 template <typename EntityType>
-class KF_ALIGN_DOUBLE_CACHELINE kF::ECS::Registry
+class alignas_double_cacheline kF::ECS::Registry
 {
 public:
     /** @brief Construct the Registry */
@@ -110,18 +110,15 @@ private:
     ComponentTables<EntityType> _componentTables {};
     Core::Vector<EntityType, EntityType> _entities {};
     EntityType _lastDestroyed { NullEntity<EntityType> };
-    KF_ALIGN_CACHELINE SystemGraph<EntityType> _systemGraph {};
+    alignas_cacheline SystemGraph<EntityType> _systemGraph {};
 
     /** @brief Only remove an entity from _entities vector */
     void removeEntityFromRegistry(const EntityType entity) noexcept_ndebug;
 };
 
-static_assert(sizeof(kF::ECS::Registry<kF::ECS::ShortEntity>) == kF::Core::CacheLineSize * 2, "Registry must take 2 cachelines");
-static_assert(alignof(kF::ECS::Registry<kF::ECS::ShortEntity>) == kF::Core::CacheLineSize * 2, "Registry must be aligned to 2 cachelines");
-static_assert(sizeof(kF::ECS::Registry<kF::ECS::Entity>) == kF::Core::CacheLineSize * 2, "Registry must take 2 cachelines");
-static_assert(alignof(kF::ECS::Registry<kF::ECS::Entity>) == kF::Core::CacheLineSize * 2, "Registry must be aligned to 2 cachelines");
-static_assert(sizeof(kF::ECS::Registry<kF::ECS::LongEntity>) == kF::Core::CacheLineSize * 2, "Registry must take 2 cachelines");
-static_assert(alignof(kF::ECS::Registry<kF::ECS::LongEntity>) == kF::Core::CacheLineSize * 2, "Registry must be aligned to 2 cachelines");
+static_assert_fit_double_cacheline(kF::ECS::Registry<kF::ECS::ShortEntity>);
+static_assert_fit_double_cacheline(kF::ECS::Registry<kF::ECS::Entity>);
+static_assert_fit_double_cacheline(kF::ECS::Registry<kF::ECS::LongEntity>);
 
 #include "SystemGraph.hpp"
 #include "Registry.ipp"

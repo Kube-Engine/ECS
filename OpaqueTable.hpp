@@ -10,7 +10,7 @@
 namespace kF::ECS
 {
     template<typename EntityType>
-    struct KF_ALIGN_QUARTER_CACHELINE OpaqueComponentTable
+    struct alignas_quarter_cacheline OpaqueComponentTable
     {
         using RemoveFunc = void(*)(void *instance, const EntityType entity);
         using DestroyFunc = void(*)(void *instance);
@@ -19,8 +19,9 @@ namespace kF::ECS
         DestroyFunc destroyFunc;
     };
 
-    static_assert(sizeof(OpaqueComponentTable<Entity>) == Core::CacheLineQuarterSize, "OpaqueComponentTable must take quarter of a cacheline");
-    static_assert(alignof(OpaqueComponentTable<Entity>) == Core::CacheLineQuarterSize, "OpaqueComponentTable must be aligned to quarter of a cacheline");
+    static_assert_fit_quarter_cacheline(OpaqueComponentTable<ShortEntity>);
+    static_assert_fit_quarter_cacheline(OpaqueComponentTable<Entity>);
+    static_assert_fit_quarter_cacheline(OpaqueComponentTable<LongEntity>);
 
     template<typename Component, typename EntityType>
     struct UniqueOpaqueComponent

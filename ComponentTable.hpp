@@ -15,7 +15,7 @@ namespace kF::ECS
 
 /** @brief Store all instances of a component type in a registry */
 template <typename Component, typename EntityType>
-class KF_ALIGN_CACHELINE kF::ECS::ComponentTable
+class alignas_cacheline kF::ECS::ComponentTable
 {
 public:
     /** @brief Size of a page (in elements, not in bytes) */
@@ -69,13 +69,8 @@ private:
     Components _components{};
 };
 
-static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::CacheLineSize, "ComponentTable must be the size of a cacheline");
-static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::ShortEntity>) == kF::Core::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
-
-static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::CacheLineSize, "ComponentTable must be the size of a cacheline");
-static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::Entity>) == kF::Core::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
-
-static_assert(sizeof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::CacheLineSize, "ComponentTable must be the size of a cacheline");
-static_assert(alignof(kF::ECS::ComponentTable<std::nullptr_t, kF::ECS::LongEntity>) == kF::Core::CacheLineSize, "ComponentTable must be aliged to the size of a cacheline");
+static_assert_fit_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::ShortEntity));
+static_assert_fit_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::Entity));
+static_assert_fit_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::LongEntity));
 
 #include "ComponentTable.ipp"

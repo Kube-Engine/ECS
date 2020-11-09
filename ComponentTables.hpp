@@ -20,7 +20,7 @@ namespace kF::ECS
 
 /** @brief Store all component tables of a registry */
 template<typename EntityType>
-class KF_ALIGN_HALF_CACHELINE kF::ECS::ComponentTables
+class alignas_half_cacheline kF::ECS::ComponentTables
 {
 public:
     static constexpr std::size_t ComponentTableSize = sizeof(ComponentTable<std::nullptr_t, EntityType>);
@@ -70,11 +70,8 @@ private:
     Core::FlatVector<std::array<std::byte, ComponentTableSize>> _tables {};
 };
 
-static_assert(sizeof(kF::ECS::ComponentTables<kF::ECS::ShortEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must take half a cacheline");
-static_assert(alignof(kF::ECS::ComponentTables<kF::ECS::ShortEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must be aligned to half a cacheline");
-static_assert(sizeof(kF::ECS::ComponentTables<kF::ECS::Entity>) == kF::Core::CacheLineSize / 2, "ComponentTables must take half a cacheline");
-static_assert(alignof(kF::ECS::ComponentTables<kF::ECS::Entity>) == kF::Core::CacheLineSize / 2, "ComponentTables must be aligned to half a cacheline");
-static_assert(sizeof(kF::ECS::ComponentTables<kF::ECS::LongEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must take half a cacheline");
-static_assert(alignof(kF::ECS::ComponentTables<kF::ECS::LongEntity>) == kF::Core::CacheLineSize / 2, "ComponentTables must be aligned to half a cacheline");
+static_assert_fit_half_cacheline(kF::ECS::ComponentTables<kF::ECS::ShortEntity>);
+static_assert_fit_half_cacheline(kF::ECS::ComponentTables<kF::ECS::Entity>);
+static_assert_fit_half_cacheline(kF::ECS::ComponentTables<kF::ECS::LongEntity>);
 
 #include "ComponentTables.ipp"
