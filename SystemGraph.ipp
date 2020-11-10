@@ -48,10 +48,13 @@ inline const System &kF::ECS::SystemGraph<EntityType>::get(void) const
 template <typename EntityType>
 inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &registry)
 {
+    using TypeID = std::type_info;
+    using SystemPair = std::pair<ASystem<EntityType> *, typename ASystem<EntityType>::Dependencies>;
+
     if (_systems.size() == 0ul)
         throw std::logic_error("ECS::SystemGraph::build: No system in graph");
 
-    std::vector<std::pair<ASystem<EntityType> *, typename ASystem<EntityType>::Dependencies>> systemsOrder;
+    std::vector<SystemPair> systemsOrder;
 
     systemsOrder.reserve(_systems.size());
     _graph.clear();
@@ -62,8 +65,28 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
         systemsOrder.emplace_back(system.get(), system->dependencies());
     }
 
-    // Use vector data to determine the sequential order of systems
-    // hint: use ASystem::typeID() to check dependencies
+    // Determine the sequential order of systems
+    for (auto it = systemsOrder.begin(); it != systemsOrder.end();) {
+        bool hasSwap = false;
+
+        for (TypeID dependencyID : it->second) {
+            auto dependencyExist = [dependencyID](const SystemPair &pair){ return pair->first->typeID() == dependencyID; };
+            
+            // Swap `dependencyID` and `it` if `dependencyID` is not before `it`
+            if (!std::any_of(systemsOrder.begin(), it, dependencyExist)) {
+                auto dependencyIt = std::find_if(systemsOrder.begin(), systemsOrder.end(), dependencyExist);
+                if (dependencyIt == systemsOrder.end())
+                    throw std::logic_error("ECS::SystemGraph::build: Dependency do not exist");
+
+                std::iter_swap(it, dependencyIt);
+                hasSwap = true;
+                break;
+            }
+        }
+        if (!hasSwap)
+            ++it;
+    }
+
 
     // Build the sequential graph
     auto current = systemsOrder.begin();
