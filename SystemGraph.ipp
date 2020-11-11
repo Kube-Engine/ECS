@@ -4,6 +4,7 @@
  */
 
 #include <stdexcept>
+#include <typeindex>
 
 template <typename EntityType>
 template <typename System, typename... Args> requires std::derived_from<System, kF::ECS::ASystem<EntityType>> && std::constructible_from<System, Args...>
@@ -15,14 +16,16 @@ inline System & kF::ECS::SystemGraph<EntityType>::add(Args &&... args)
 
     auto newSystem = std::make_unique<System>(std::forward<Args>(args)...);
     _systems.emplace_back(newSystem);
-    _graph.emplace(newSystem.graph());
+    _graph.emplace(newSystem->graph());
+
+    return *newSystem;
 }
 
 template <typename EntityType>
 template <typename System> requires std::derived_from<System, kF::ECS::ASystem<EntityType>>
 inline bool kF::ECS::SystemGraph<EntityType>::exists(void) const noexcept
 {
-    const auto systemTypeID = typeid(System);
+    const std::type_index &systemTypeID = typeid(System);
     const auto it = std::find_if(_systems.begin(), _systems.end(), [systemTypeID](SystemPtr<EntityType> &systemPtr) {
         return systemPtr->typeID() == systemTypeID;
     });
@@ -34,7 +37,7 @@ template <typename EntityType>
 template <typename System> requires std::derived_from<System, kF::ECS::ASystem<EntityType>>
 inline const System &kF::ECS::SystemGraph<EntityType>::get(void) const
 {
-    const auto systemTypeID = typeid(System);
+    const std::type_index &systemTypeID = typeid(System);
     const auto it = std::find_if(_systems.begin(), _systems.end(), [systemTypeID](SystemPtr<EntityType> &systemPtr) {
         return systemPtr->typeID() == systemTypeID;
     });
@@ -48,7 +51,6 @@ inline const System &kF::ECS::SystemGraph<EntityType>::get(void) const
 template <typename EntityType>
 inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &registry)
 {
-    using TypeID = std::type_info;
     using SystemPair = std::pair<ASystem<EntityType> *, typename ASystem<EntityType>::Dependencies>;
 
     if (_systems.size() == 0ul)
@@ -69,7 +71,7 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
     for (auto it = systemsOrder.begin(); it != systemsOrder.end();) {
         bool hasSwap = false;
 
-        for (TypeID dependencyID : it->second) {
+        for (std::type_index dependencyID : it->second) {
             auto dependencyExist = [dependencyID](const SystemPair &pair){ return pair->first->typeID() == dependencyID; };
             
             // Swap `dependencyID` and `it` if `dependencyID` is not before `it`

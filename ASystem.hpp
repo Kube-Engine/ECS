@@ -4,7 +4,9 @@
  */
 #pragma once
 
+#include <iostream>
 #include <vector>
+#include <typeindex>
 
 #include <Kube/Flow/Graph.hpp>
 
@@ -24,7 +26,7 @@ template <typename EntityType>
 class kF::ECS::ASystem
 {
 public:
-    using TypeID = std::type_info;
+    using TypeID = std::type_index;
     using Dependencies = std::vector<TypeID>;
 
     /** @brief Construct a new system using a TypeID */
