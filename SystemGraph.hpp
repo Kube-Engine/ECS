@@ -44,12 +44,12 @@ public:
 
     /** @brief Retrieve a System in the Graph */
     template <typename System> requires std::derived_from<System, ASystem<EntityType>>
-    [[nodiscard]] System &get(void)
+    [[nodiscard]] System &get(void) noexcept_ndebug
         { return const_cast<System &>(const_cast<const SystemGraph &>(*this).get<System>()); }
 
     /** @brief Retrieve a System in the Graph */
     template <typename System> requires std::derived_from<System, ASystem<EntityType>>
-    [[nodiscard]] const System &get(void) const;
+    [[nodiscard]] const System &get(void) const noexcept_ndebug;
 
 
     /** @brief Setup and build the system graph according to internal system dependencies */
@@ -67,7 +67,7 @@ public:
 
 private:
     kF::Flow::Graph _graph {};
-    std::vector<kF::ECS::SystemPtr<EntityType>> _systems {};
+    Core::Vector<kF::ECS::SystemPtr<EntityType>> _systems {};
 };
 
 static_assert_fit_half_cacheline(kF::ECS::SystemGraph<kF::ECS::ShortEntity>);

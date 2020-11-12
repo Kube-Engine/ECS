@@ -7,7 +7,7 @@
 
 #include <numeric>
 
-#include <Kube/Core/Core.hpp>
+#include <Kube/Core/Utils.hpp>
 
 namespace kF::ECS
 {

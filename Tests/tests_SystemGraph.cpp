@@ -1,4 +1,4 @@
-l/**
+/**
  * @ Author: Matthieu Moinvaziri
  * @ Description: Unit tests of Registry
  */
@@ -8,42 +8,62 @@ l/**
 #include <gtest/gtest.h>
 
 #include <Kube/ECS/Registry.hpp>
-#include <Kube/ECS/SystemGraph.hpp>
-#include <Kube/ECS/ASystem.hpp>
 
 using namespace kF;
 
 using TypeID = std::type_index;
-using Dependencies = std::vector<TypeID>;
+using Dependencies = Core::Vector<TypeID>;
 
 template <typename EntityType>
-class SystemA: public ECS::ASystem<EntityType>
+class SystemA : public ECS::ASystem<EntityType>
 {
 public:
-    SystemA() noexcept : ECS::ASystem<EntityType>(typeid(SystemA)) {};
+    SystemA(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemA)) {};
+    virtual ~SystemA(void) override = default;
 
     void setup(ECS::Registry<ECS::Entity> &registry) { std::cout << "SETUP SYSTEM A" << std::endl; };
 
     Dependencies dependencies(void) {
-        std::vector<TypeID> test;
+        Core::Vector<TypeID> test;
         return test;
     };
 };
 
 template <typename EntityType>
-class SystemB: public ECS::ASystem<EntityType>
+class SystemB : public ECS::ASystem<EntityType>
 {
 public:
-    SystemB() noexcept : ECS::ASystem<EntityType>(typeid(SystemB)) {};
+    SystemB(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemB)) {};
+    virtual ~SystemB(void) override = default;
 
-    void setup(ECS::Registry<ECS::Entity> &registry) { std::cout << "SETUP SYSTEM B" << std::endl; };
+    virtual void setup(ECS::Registry<ECS::Entity> &registry) { std::cout << "SETUP SYSTEM B" << std::endl; };
 
-    Dependencies dependencies(void) {
-        std::vector<TypeID> test;
-        test.push_back(typeid(SystemA<EntityType>));
+    virtual Dependencies dependencies(void)
+    {
+        Core::Vector<TypeID> test;
+        test.push(typeid(SystemA<EntityType>));
         return test;
     }
 };
+
+TEST(SystemGraph, Add)
+{
+    ECS::SystemGraph<ECS::Entity> systemGraph;
+
+    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), false);
+    systemGraph.add<SystemA<ECS::Entity>>();
+    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), true);
+}
+
+TEST(SystemGraph, Get)
+{
+    ECS::SystemGraph<ECS::Entity> systemGraph;
+
+    systemGraph.add<SystemA<ECS::Entity>>();
+    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), true);
+    const SystemA<ECS::Entity> systemA = systemGraph.get<SystemA<ECS::Entity>>();
+    ASSERT_EQ(systemA.typeID().name(), typeid(SystemA<ECS::Entity>).name());
+}
 
 TEST(SystemGraph, Build)
 {
@@ -51,6 +71,6 @@ TEST(SystemGraph, Build)
     ECS::SystemGraph<ECS::Entity> systemGraph;
 
     systemGraph.add<SystemA<ECS::Entity>>();
-    // systemGraph.add<SystemB<ECS::Entity>>();
+    systemGraph.add<SystemB<ECS::Entity>>();
     // systemGraph.build(registry);
 }

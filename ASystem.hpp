@@ -5,7 +5,6 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <typeindex>
 
 #include <Kube/Flow/Graph.hpp>
@@ -27,7 +26,7 @@ class kF::ECS::ASystem
 {
 public:
     using TypeID = std::type_index;
-    using Dependencies = std::vector<TypeID>;
+    using Dependencies = Core::Vector<TypeID>;
 
     /** @brief Construct a new system using a TypeID */
     ASystem(const TypeID typeID) noexcept : _typeID(typeID) {};
