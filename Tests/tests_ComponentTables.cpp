@@ -28,5 +28,5 @@ TEST(ComponentTables, Basics)
     ASSERT_EQ(cintTable.get(42), 24);
 
     ASSERT_THROW(table.add<int>(), std::logic_error);
-    ASSERT_THROW(table.getTable<float>(), std::logic_error);
+    ASSERT_THROW(table.getTable<float>().clear(), std::logic_error);
 }

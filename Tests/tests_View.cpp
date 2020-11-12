@@ -54,18 +54,3 @@ TEST(View, Empty)
 
     ASSERT_EQ(view.traverse([](){}), false);
 }
-
-TEST(View, NonExistant)
-{
-    ECS::ComponentTable<int, ECS::Entity> table;
-    ECS::View<ECS::Entity, int> view(table);
-    ECS::Entity entity = 42;
-
-    table.add(entity, 42);
-
-    ASSERT_EQ(view.traverse<float>([](int){}), false);
-
-    ECS::View<ECS::Entity> view2({});
-
-    ASSERT_EQ(view2.traverse<int>([](){}), false);
-}
