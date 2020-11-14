@@ -23,7 +23,7 @@ inline bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) 
 
 template<typename EntityType, typename ...Components>
 template<typename Component, typename Functor>
-    requires kF::Graphics::ViewTraversableRequirements<Component, Components...>
+//    requires (!std::is_same_v<Component, Components> && ...)
 inline bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) const
 {
     bool success = false;

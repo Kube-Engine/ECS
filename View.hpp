@@ -12,6 +12,7 @@
 namespace kF::ECS
 {
     template<typename EntityType, typename ...Components>
+        requires (sizeof...(Components) > 0)
     class View;
 
     // template<typename Component, typename ...Components>
@@ -19,7 +20,7 @@ namespace kF::ECS
 }
 
 template<typename EntityType, typename ...Components>
-    // requires requires { sizeof...(Components) != 0 }
+    requires (sizeof...(Components) > 0)
 class kF::ECS::View
 {
 public:
@@ -39,7 +40,7 @@ public:
 
     /** @brief Traverse the view and call 'func' for each match and return true if functor has been called at least once. Enforce the iteration order in case of Component */
     template<typename Component, typename Functor>
-        //requires ViewTraversableRequirements<Component, Components...>
+//        requires (!std::is_same_v<Component, Components> && ...)
     bool traverse(Functor &&func) const;
 
 private:

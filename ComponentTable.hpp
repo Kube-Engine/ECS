@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <Kube/Core/TrivialDispatcher.hpp>
+
 #include "SparseEntitySet.hpp"
 
 namespace kF::ECS
@@ -15,7 +17,7 @@ namespace kF::ECS
 
 /** @brief Store all instances of a component type in a registry */
 template <typename Component, typename EntityType>
-class alignas_cacheline kF::ECS::ComponentTable
+class alignas_double_cacheline kF::ECS::ComponentTable
 {
 public:
     /** @brief Size of a page (in elements, not in bytes) */
@@ -29,6 +31,12 @@ public:
 
     /** @brief Readonly iterator over components */
     using ConstIterator = Components::ConstIterator;
+
+    /** @brief Dispatcher when an entity is added */
+    using AddDispatcher = Core::TrivialDispatcher<void (EntityType)>;
+
+    /** @brief Dispatcher when an entity is removed */
+    using RemoveDispatcher = Core::TrivialDispatcher<void (EntityType)>;
 
     /** @brief Check if an entity exists in the table */
     [[nodiscard]] bool exists(const EntityType entity) const noexcept { return _indexes.exists(entity); }
@@ -64,13 +72,21 @@ public:
     [[nodiscard]] ConstIterator end(void) const noexcept { return _components.end(); }
     [[nodiscard]] ConstIterator cend(void) const noexcept { return _components.cend(); }
 
+    /** @brief Get add dispacher */
+    [[nodiscard]] AddDispatcher &getAddDispatcher(void) noexcept { return _addDispatcher; }
+
+    /** @brief Get remove dispacher */
+    [[nodiscard]] RemoveDispatcher &getRemoveDispatcher(void) noexcept { return _removeDispatcher; }
+
 private:
-    SparseEntitySet<EntityType, PageSize> _indexes{};
-    Components _components{};
+    SparseEntitySet<EntityType, PageSize> _indexes {};
+    Components _components {};
+    AddDispatcher _addDispatcher {};
+    RemoveDispatcher _removeDispatcher {};
 };
 
-static_assert_fit_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::ShortEntity));
-static_assert_fit_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::Entity));
-static_assert_fit_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::LongEntity));
+static_assert_fit_double_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::ShortEntity));
+static_assert_fit_double_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::Entity));
+static_assert_fit_double_cacheline(TEMPLATE_TYPE(kF::ECS::ComponentTable, std::nullptr_t, kF::ECS::LongEntity));
 
 #include "ComponentTable.ipp"

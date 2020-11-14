@@ -12,6 +12,7 @@ template <typename... Args>
 inline Component &kF::ECS::ComponentTable<Component, EntityType>::add(const EntityType entity, Args &&... args) noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...))
 {
     _indexes.add(entity);
+    _addDispatcher.dispatch(entity);
     return _components.push(std::forward<Args>(args)...);
 }
 
@@ -26,6 +27,7 @@ inline void kF::ECS::ComponentTable<Component, EntityType>::remove(const EntityT
     const auto toRemoveIndex = _indexes.remove(entity);
     _components.at(toRemoveIndex) = std::move(_components.at(lastIndex));
     _components.pop();
+    _removeDispatcher.dispatch(entity);
 }
 
 template <typename Component, typename EntityType>

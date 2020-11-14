@@ -48,9 +48,17 @@ TEST(View, Multiple)
     ASSERT_EQ(i, 42);
 }
 
-TEST(View, Empty)
+TEST(View, NonExistant)
 {
-    ECS::View<ECS::Entity> view({});
+//    ECS::ComponentTable<int, ECS::Entity> table;
+//    ECS::View<ECS::Entity, int> view(table);
+//    ECS::Entity entity = 42;
+//
+//    table.add(entity, 42);
 
-    ASSERT_EQ(view.traverse([](){}), false);
+//    ASSERT_EQ(view.traverse<int>([](int value){}), false);
+
+//    ECS::View<ECS::Entity> view2({});
+//
+//    ASSERT_EQ(view2.traverse<int>([](){}), false);
 }
