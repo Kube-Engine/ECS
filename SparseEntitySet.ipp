@@ -76,12 +76,8 @@ template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Page
     kF::ECS::SparseEntitySet<EntityType, PageSize>::MakePage(void) noexcept_ndebug
 {
-    Index * const data = reinterpret_cast<Index *>(
-        std::aligned_alloc(std::max(alignof(Index), alignof(std::max_align_t)), sizeof(Index) * PageSize)
-    );
+    auto * const data = reinterpret_cast<Index *>(Core::Utils::AlignedAlloc(alignof(Index), sizeof(Index) * PageSize));
 
-    kFAssert(data,
-        throw std::runtime_error("ECS::SparseEntitySet::MakePage: Invalid aligned_alloc"));
     std::uninitialized_fill_n(data, PageSize, NullIndex);
     return Page(data);
 }
