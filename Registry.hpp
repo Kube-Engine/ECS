@@ -11,12 +11,12 @@
 
 namespace kF::ECS
 {
-    template <typename EntityType>
+    template<EntityRequirements EntityType>
     class Registry;
 }
 
 /** @brief Used to create Entities, add Components to them, retrieve Systems etc... */
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 class alignas_double_cacheline kF::ECS::Registry
 {
 public:

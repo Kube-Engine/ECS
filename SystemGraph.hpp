@@ -13,15 +13,15 @@
 
 namespace kF::ECS
 {
-    template <typename EntityType>
+    template<EntityRequirements EntityType>
     class SystemGraph;
 
-    template <typename EntityType>
+    template<EntityRequirements EntityType>
     using SystemPtr = std::unique_ptr<ASystem<EntityType>>;
 }
 
 /** @brief A Flow Graph of system(s) */
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 class alignas_half_cacheline kF::ECS::SystemGraph
 {
 public:
@@ -33,22 +33,22 @@ public:
 
 
     /** @brief Add a System to the Graph */
-    template <typename System, typename... Args>
+    template<typename System, typename... Args>
         requires    std::derived_from<System, ASystem<EntityType>> &&
                     std::constructible_from<System, Args...>
     System &add(Args &&... args) noexcept(nothrow_ndebug && nothrow_constructible(System, Args...));
 
     /** @brief Check if a system is registered */
-    template <typename System> requires std::derived_from<System, ASystem<EntityType>>
+    template<typename System> requires std::derived_from<System, ASystem<EntityType>>
     [[nodiscard]] bool exists(void) const noexcept;
 
     /** @brief Retrieve a System in the Graph */
-    template <typename System> requires std::derived_from<System, ASystem<EntityType>>
+    template<typename System> requires std::derived_from<System, ASystem<EntityType>>
     [[nodiscard]] System &get(void) noexcept_ndebug
         { return const_cast<System &>(const_cast<const SystemGraph &>(*this).get<System>()); }
 
     /** @brief Retrieve a System in the Graph */
-    template <typename System> requires std::derived_from<System, ASystem<EntityType>>
+    template<typename System> requires std::derived_from<System, ASystem<EntityType>>
     [[nodiscard]] const System &get(void) const noexcept_ndebug;
 
 

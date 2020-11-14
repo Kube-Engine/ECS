@@ -33,9 +33,9 @@ TEST(SparseEntitySet, Basics)
     entities.add(entity1);
     entities.add(entity2);
 
+#if KUBE_DEBUG_BUILD
     ASSERT_THROW(entities.add(entity1), std::logic_error);
-
     entities.clear();
-
     ASSERT_THROW(entities.remove(entity2), std::logic_error);
+#endif
 }

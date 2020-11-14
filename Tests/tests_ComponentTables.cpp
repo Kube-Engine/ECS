@@ -27,6 +27,8 @@ TEST(ComponentTables, Basics)
     intTable.add(42, 24);
     ASSERT_EQ(cintTable.get(42), 24);
 
+#if KUBE_DEBUG_BUILD
     ASSERT_THROW(table.add<int>(), std::logic_error);
     ASSERT_THROW(table.getTable<float>().clear(), std::logic_error);
+#endif
 }

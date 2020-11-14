@@ -29,11 +29,11 @@ TEST(ComponentTable, Basics)
 
     table.add(entity);
 
+#if KUBE_DEBUG_BUILD
     ASSERT_THROW(table.add(entity), std::logic_error);
-
     table.clear();
-
     ASSERT_THROW(table.remove(entity), std::logic_error);
+#endif
 }
 
 TEST(ComponentTable, Dispatchers)

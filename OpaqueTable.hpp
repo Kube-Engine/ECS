@@ -9,7 +9,7 @@
 
 namespace kF::ECS
 {
-    template<typename EntityType>
+    template<EntityRequirements EntityType>
     struct alignas_quarter_cacheline OpaqueComponentTable
     {
         using RemoveFunc = void(*)(void *instance, const EntityType entity);
@@ -23,7 +23,7 @@ namespace kF::ECS
     static_assert_fit_quarter_cacheline(OpaqueComponentTable<Entity>);
     static_assert_fit_quarter_cacheline(OpaqueComponentTable<LongEntity>);
 
-    template<typename Component, typename EntityType>
+    template<typename Component, EntityRequirements EntityType>
     struct UniqueOpaqueComponent
     {
         using Table = ComponentTable<Component, EntityType>;
@@ -39,7 +39,7 @@ namespace kF::ECS
         };
     };
 
-    template<typename Component, typename EntityType>
+    template<typename Component, EntityRequirements EntityType>
     [[nodiscard]] static const OpaqueComponentTable<EntityType> *GetOpaqueComponentTable(void) noexcept
     {
         using FlatComponent = std::remove_cvref_t<Component>;

@@ -3,8 +3,8 @@
  * @ Description: ComponentTables
  */
 
-template <typename EntityType>
-template <typename Component>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename Component>
 void kF::ECS::ComponentTables<EntityType>::add(void) noexcept_ndebug
 {
     using Table = ComponentTable<Component, EntityType>;
@@ -19,7 +19,7 @@ void kF::ECS::ComponentTables<EntityType>::add(void) noexcept_ndebug
     new (&_tables.push()) Table();
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline bool kF::ECS::ComponentTables<EntityType>::tableExists(const OpaqueTable opaqueTable) const noexcept
 {
     for (const auto it : _opaqueTables) {
@@ -29,7 +29,7 @@ inline bool kF::ECS::ComponentTables<EntityType>::tableExists(const OpaqueTable 
     return false;
 }
 
-template<typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 template<typename Component>
 inline const kF::ECS::ComponentTable<Component, EntityType> &kF::ECS::ComponentTables<EntityType>::getTable(void) const noexcept_ndebug
 {
@@ -45,7 +45,7 @@ inline const kF::ECS::ComponentTable<Component, EntityType> &kF::ECS::ComponentT
     kFDebugThrow(std::logic_error("ECS::ComponentTable::GetTable: Table doesn't exists"));
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 void kF::ECS::ComponentTables<EntityType>::removeEntity(const EntityType entity)
 {
     for (auto i = 0ul; const auto removeFunc : _removeFuncs) {
@@ -54,7 +54,7 @@ void kF::ECS::ComponentTables<EntityType>::removeEntity(const EntityType entity)
     }
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline void kF::ECS::ComponentTables<EntityType>::clear(void)
 {
     for (auto i = 0ul; const auto it : _opaqueTables) {

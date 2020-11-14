@@ -7,8 +7,8 @@
 #include <typeindex>
 #include <memory>
 
-template <typename EntityType>
-template <typename System, typename... Args> requires std::derived_from<System, kF::ECS::ASystem<EntityType>> && std::constructible_from<System, Args...>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename System, typename... Args> requires std::derived_from<System, kF::ECS::ASystem<EntityType>> && std::constructible_from<System, Args...>
 inline System &kF::ECS::SystemGraph<EntityType>::add(Args &&... args)
     noexcept(nothrow_ndebug && nothrow_constructible(System, Args...))
 {
@@ -22,8 +22,8 @@ inline System &kF::ECS::SystemGraph<EntityType>::add(Args &&... args)
     return system;
 }
 
-template <typename EntityType>
-template <typename System> requires std::derived_from<System, kF::ECS::ASystem<EntityType>>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename System> requires std::derived_from<System, kF::ECS::ASystem<EntityType>>
 inline bool kF::ECS::SystemGraph<EntityType>::exists(void) const noexcept
 {
     return std::any_of(_systems.begin(), _systems.end(), [systemTypeID = std::type_index(typeid(System))](const SystemPtr<EntityType> &systemPtr) {
@@ -31,8 +31,8 @@ inline bool kF::ECS::SystemGraph<EntityType>::exists(void) const noexcept
     });
 }
 
-template <typename EntityType>
-template <typename System> requires std::derived_from<System, kF::ECS::ASystem<EntityType>>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename System> requires std::derived_from<System, kF::ECS::ASystem<EntityType>>
 inline const System &kF::ECS::SystemGraph<EntityType>::get(void) const noexcept_ndebug
 {
     const auto it = std::find_if(_systems.begin(), _systems.end(), [systemTypeID = std::type_index(typeid(System))](const SystemPtr<EntityType> &systemPtr) {
@@ -44,7 +44,7 @@ inline const System &kF::ECS::SystemGraph<EntityType>::get(void) const noexcept_
     return *dynamic_cast<System*>((*it).get());
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &registry)
 {
     using SystemPair = std::pair<ASystem<EntityType> *, typename ASystem<EntityType>::Dependencies>;
@@ -94,7 +94,7 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
     }
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline void kF::ECS::SystemGraph<EntityType>::clear(void) noexcept
 {
     _systems.clear();

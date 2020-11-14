@@ -13,15 +13,15 @@
 
 namespace kF::ECS
 {
-    template <typename EntityType>
+    template<EntityRequirements EntityType>
     class ASystem;
 
-    template <typename EntityType>
+    template<EntityRequirements EntityType>
     class Registry;
 }
 
 /** @brief An opaque system */
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 class kF::ECS::ASystem
 {
 public:

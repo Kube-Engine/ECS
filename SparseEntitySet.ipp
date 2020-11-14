@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 
-template<typename EntityType, EntityType PageSize>
+template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 inline bool kF::ECS::SparseEntitySet<EntityType, PageSize>::exists(const EntityType entity) const noexcept
 {
     if (_pages.empty()) [[unlikely]]
@@ -17,7 +17,7 @@ inline bool kF::ECS::SparseEntitySet<EntityType, PageSize>::exists(const EntityT
     return page < _pages.size() && (*it) && (*it)[ElementIndex(entity)] != NullIndex;
 }
 
-template<typename EntityType, EntityType PageSize>
+template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Index
     kF::ECS::SparseEntitySet<EntityType, PageSize>::add(const EntityType entity) noexcept_ndebug
 {
@@ -43,7 +43,7 @@ inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Index
     return index;
 }
 
-template<typename EntityType, EntityType PageSize>
+template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Index
     kF::ECS::SparseEntitySet<EntityType, PageSize>::remove(const EntityType entity) noexcept_ndebug
 {
@@ -65,14 +65,14 @@ inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Index
     return index;
 }
 
-template<typename EntityType, EntityType PageSize>
+template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 inline void kF::ECS::SparseEntitySet<EntityType, PageSize>::clear(void) noexcept
 {
     _pages.clear();
     _flatset.clear();
 }
 
-template<typename EntityType, EntityType PageSize>
+template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Page
     kF::ECS::SparseEntitySet<EntityType, PageSize>::MakePage(void) noexcept_ndebug
 {

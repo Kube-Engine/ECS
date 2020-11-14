@@ -11,12 +11,12 @@
 
 namespace kF::ECS
 {
-    template <typename Component, typename EntityType>
+    template<typename Component, EntityRequirements EntityType>
     class ComponentTable;
 }
 
 /** @brief Store all instances of a component type in a registry */
-template <typename Component, typename EntityType>
+template<typename Component, kF::ECS::EntityRequirements EntityType>
 class alignas_double_cacheline kF::ECS::ComponentTable
 {
 public:
@@ -42,7 +42,7 @@ public:
     [[nodiscard]] bool exists(const EntityType entity) const noexcept { return _indexes.exists(entity); }
 
     /** @brief Add a component linked to a given entity */
-    template <typename... Args>
+    template<typename... Args>
     Component &add(const EntityType entity, Args &&... args)
         noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...));
 

@@ -3,7 +3,7 @@
  * @ Description: ECS View
  */
 
-template<typename EntityType, typename ...Components>
+template<kF::ECS::EntityRequirements EntityType, typename ...Components>
 template<typename Functor>
 inline bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) const
 {
@@ -21,7 +21,7 @@ inline bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) 
     return success;
 }
 
-template<typename EntityType, typename ...Components>
+template<kF::ECS::EntityRequirements EntityType, typename ...Components>
 template<typename Component, typename Functor>
 //    requires (!std::is_same_v<Component, Components> && ...)
 inline bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) const
@@ -37,7 +37,7 @@ inline bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) 
     return success;
 }
 
-template<typename EntityType, typename ...Components>
+template<kF::ECS::EntityRequirements EntityType, typename ...Components>
 template<typename Component>
 inline const Component &kF::ECS::View<EntityType, Components ...>::getComponentOf(EntityType entity) const noexcept
 {

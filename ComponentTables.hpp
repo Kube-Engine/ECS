@@ -14,12 +14,12 @@
 
 namespace kF::ECS
 {
-    template<typename EntityType>
+    template<EntityRequirements EntityType>
     class ComponentTables;
 }
 
 /** @brief Store all component tables of a registry */
-template<typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 class alignas_half_cacheline kF::ECS::ComponentTables
 {
 public:

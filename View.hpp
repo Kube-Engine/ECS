@@ -11,7 +11,7 @@
 
 namespace kF::ECS
 {
-    template<typename EntityType, typename ...Components>
+    template<EntityRequirements EntityType, typename ...Components>
         requires (sizeof...(Components) > 0)
     class View;
 
@@ -19,7 +19,7 @@ namespace kF::ECS
     // concept ViewTraversableRequirements = std::bool_constant<sizeof...(Components) == 0 && (!std::is_same_v<Component, Components> && ...)>;
 }
 
-template<typename EntityType, typename ...Components>
+template<kF::ECS::EntityRequirements EntityType, typename ...Components>
     requires (sizeof...(Components) > 0)
 class kF::ECS::View
 {

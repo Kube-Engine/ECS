@@ -14,7 +14,7 @@ using namespace kF;
 using TypeID = std::type_index;
 using Dependencies = Core::Vector<TypeID>;
 
-template <typename EntityType>
+template<ECS::EntityRequirements EntityType>
 class SystemA : public ECS::ASystem<EntityType>
 {
 public:
@@ -29,7 +29,7 @@ public:
     };
 };
 
-template <typename EntityType>
+template<ECS::EntityRequirements EntityType>
 class SystemB : public ECS::ASystem<EntityType>
 {
 public:

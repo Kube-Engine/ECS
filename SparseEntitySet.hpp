@@ -17,13 +17,13 @@
 
 namespace kF::ECS
 {
-    template<typename EntityType, EntityType PageSize>
+    template<EntityRequirements EntityType, EntityType PageSize>
     class SparseEntitySet;
 }
 
 /** @brief The sparse index set is a container which provide O(1) look-up time at the cost of
  *  non-efficient memory consumption */
-template<typename EntityType, EntityType PageSize>
+template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 class kF::ECS::SparseEntitySet
 {
 public:

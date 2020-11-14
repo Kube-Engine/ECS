@@ -5,7 +5,7 @@
 
 #include <tuple>
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline EntityType kF::ECS::Registry<EntityType>::add(void) noexcept
 {
     // Check if there is a free entity
@@ -19,8 +19,8 @@ inline EntityType kF::ECS::Registry<EntityType>::add(void) noexcept
         return _entities.push(_entities.size());
 }
 
-template <typename EntityType>
-template <typename... Components>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename... Components>
 inline EntityType kF::ECS::Registry<EntityType>::add(Components &&... components)
     noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)))
 {
@@ -30,23 +30,23 @@ inline EntityType kF::ECS::Registry<EntityType>::add(Components &&... components
     return newEntity;
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline void kF::ECS::Registry<EntityType>::remove(const EntityType entity) noexcept_ndebug
 {
     removeEntityFromRegistry(entity);
     _componentTables.removeEntity(entity);
 }
 
-template <typename EntityType>
-template <typename... Components>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename... Components>
 inline void kF::ECS::Registry<EntityType>::remove(const EntityType entity) noexcept_ndebug
 {
     removeEntityFromRegistry(entity);
     detach<Components...>(entity);
 }
 
-template <typename EntityType>
-template <typename Component, typename... Args>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename Component, typename... Args>
 inline Component &kF::ECS::Registry<EntityType>::attach(const EntityType entity, Args &&... args)
     noexcept(nothrow_ndebug && nothrow_constructible(Component, Args...))
 {
@@ -55,16 +55,16 @@ inline Component &kF::ECS::Registry<EntityType>::attach(const EntityType entity,
     return _componentTables.template getTable<Component>().add(entity, std::forward<Args>(args)...);
 }
 
-template <typename EntityType>
-template <typename... Components> requires (sizeof...(Components) > 1)
+template<kF::ECS::EntityRequirements EntityType>
+template<typename... Components> requires (sizeof...(Components) > 1)
 inline void kF::ECS::Registry<EntityType>::attach(const EntityType entity, Components &&... components)
     noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)))
 {
     (... , attach<Components>(entity, std::forward<Components>(components)));
 }
 
-template <typename EntityType>
-template <typename Component>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename Component>
 inline void kF::ECS::Registry<EntityType>::detach(const EntityType entity)
     noexcept(nothrow_ndebug &&nothrow_destructible(Component))
 {
@@ -73,8 +73,8 @@ inline void kF::ECS::Registry<EntityType>::detach(const EntityType entity)
     _componentTables.template getTable<Component>().remove(entity);
 }
 
-template <typename EntityType>
-template <typename... Components> requires (sizeof...(Components) > 1)
+template<kF::ECS::EntityRequirements EntityType>
+template<typename... Components> requires (sizeof...(Components) > 1)
 inline void kF::ECS::Registry<EntityType>::detach(const EntityType entity)
     noexcept(nothrow_ndebug && (... && nothrow_destructible(Components)))
 {
@@ -83,7 +83,7 @@ inline void kF::ECS::Registry<EntityType>::detach(const EntityType entity)
     (... , detach<Components>(entity));
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline void kF::ECS::Registry<EntityType>::clear(void)
 {
     _componentTables.clear();
@@ -92,8 +92,8 @@ inline void kF::ECS::Registry<EntityType>::clear(void)
     _systemGraph.clear();
 }
 
-template <typename EntityType>
-template <typename... Components>
+template<kF::ECS::EntityRequirements EntityType>
+template<typename... Components>
 inline kF::ECS::View<EntityType, Components...> kF::ECS::Registry<EntityType>::view(void) const noexcept_ndebug
 {
     kFAssert((... && _componentTables.template tableExists<Components>()),
@@ -104,7 +104,7 @@ inline kF::ECS::View<EntityType, Components...> kF::ECS::Registry<EntityType>::v
     );
 }
 
-template <typename EntityType>
+template<kF::ECS::EntityRequirements EntityType>
 inline void kF::ECS::Registry<EntityType>::removeEntityFromRegistry(const EntityType entity) noexcept_ndebug
 {
     const auto lastDestroyed = _lastDestroyed;
