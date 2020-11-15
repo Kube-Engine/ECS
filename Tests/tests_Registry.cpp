@@ -42,7 +42,7 @@ public:
     void setup(ECS::Registry<ECS::Entity> &registry)
     {
         auto &task = this->task();
-        
+
         task.setWork([&registry, this]() {
             auto view = registry.view<Position, Velocity>();
             view.traverse([this](Position &position, Velocity &velocity) {
@@ -75,7 +75,7 @@ public:
     virtual void setup(ECS::Registry<ECS::Entity> &registry)
     {
         auto &task = this->task();
-        
+
         task.setWork([&registry, this]() {
             auto view = registry.view<Position, Wind>();
             view.traverse([this](Position &position, Wind &wind) {
@@ -129,7 +129,7 @@ TEST(Registry, View)
     PREPARE_REGISTRY(registry, 10);
 
     auto view = registry.view<Position, Velocity>();
-    view.traverse([](auto &position, auto &velocity) {
+    view.traverse([](auto &position, const auto &velocity) {
         position.x += velocity.dx;
         position.y += velocity.dy;
     } );
@@ -137,7 +137,7 @@ TEST(Registry, View)
     const auto &componentTables = registry.componentTables();
     const auto &positionTable = componentTables.getTable<Position>();
 
-    int i = 1;    
+    int i = 1;
     for (auto it = positionTable.cbegin(); it != positionTable.cend(); it++) {
         ASSERT_EQ(i + i * .1f * ((i + 1) % 2), (*it).x);
         ASSERT_EQ(i + i * .1f * ((i + 1) % 2), (*it).y);
@@ -167,7 +167,7 @@ TEST(Registry, SystemGraph)
     const auto &componentTables = registry.componentTables();
     const auto &positionTable = componentTables.getTable<Position>();
 
-    int i = 1;    
+    int i = 1;
     for (auto it = positionTable.cbegin(); it != positionTable.cend(); it++) {
 //        std::cout << i << " (" << (*it).x << ", " << (*it).y << ")" << std::endl;
 //        ASSERT_EQ(i + i * .1f * ((i + 1) % 2), (*it).x);

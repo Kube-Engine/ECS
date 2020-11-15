@@ -98,6 +98,9 @@ public:
     /** @brief Retreive the graph of systems */
     [[nodiscard]] const SystemGraph<EntityType> &systemGraph(void) const noexcept { return _systemGraph; };
 
+    /** @brief Build system graph */
+    void buildSystemGraph(void) { _systemGraph.build(*this); }
+
 
     /** @brief Implicit conversion to Flow::Graph, used for Scheduler */
     [[nodiscard]] operator Flow::Graph &(void) noexcept { return _systemGraph.graph(); }

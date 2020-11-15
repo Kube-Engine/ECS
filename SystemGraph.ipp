@@ -52,7 +52,7 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
     if (_systems.size() == 0ul)
         throw std::logic_error("ECS::SystemGraph::build: No system in graph");
 
-    // Prepare systems order set and clear graph 
+    // Prepare systems order set and clear graph
     Core::Vector<SystemPtr> systemsOrder;
     systemsOrder.reserve(_systems.size());
     _graph.clear();

@@ -8,138 +8,121 @@
 #include <gtest/gtest.h>
 
 #include <Kube/ECS/Registry.hpp>
+#include <Kube/Flow/Scheduler.hpp>
 
 using namespace kF;
-
-template<ECS::EntityRequirements EntityType>
-class SystemA;
-
-template<ECS::EntityRequirements EntityType>
-class SystemB;
-
-template<ECS::EntityRequirements EntityType>
-class SystemC;
-
-template<ECS::EntityRequirements EntityType>
-class SystemD;
-
-template<ECS::EntityRequirements EntityType>
-class SystemE;
-
 
 using TypeID = std::type_index;
 using Dependencies = Core::Vector<TypeID>;
 
 template<ECS::EntityRequirements EntityType>
-class SystemA : public ECS::ASystem<EntityType>
+class SystemDummy : public ECS::ASystem<EntityType>
 {
 public:
-    SystemA(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemA)) {};
-    virtual ~SystemA(void) override = default;
+    SystemDummy(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemDummy)) {};
+    virtual ~SystemDummy(void) override = default;
 
     void setup(ECS::Registry<ECS::Entity> &registry) {};
-    virtual Dependencies dependencies(void) { return Dependencies {typeid(SystemB<EntityType>), typeid(SystemE<EntityType>)}; };
+    virtual Dependencies dependencies(void) { return Dependencies {}; };
 };
 
 template<ECS::EntityRequirements EntityType>
-class SystemB : public ECS::ASystem<EntityType>
+class SystemDummy2 : public ECS::ASystem<EntityType>
 {
 public:
-    SystemB(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemB)) {};
-    virtual ~SystemB(void) override = default;
+    SystemDummy2(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemDummy2)) {};
+    virtual ~SystemDummy2(void) override = default;
 
-    virtual void setup(ECS::Registry<ECS::Entity> &registry) {};
-    virtual Dependencies dependencies(void) { return Dependencies {}; }
-};
-
-template<ECS::EntityRequirements EntityType>
-class SystemC : public ECS::ASystem<EntityType>
-{
-public:
-    SystemC(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemC)) {};
-    virtual ~SystemC(void) override = default;
-
-    virtual void setup(ECS::Registry<ECS::Entity> &registry) {};
-    virtual Dependencies dependencies(void) { return Dependencies {typeid(SystemB<EntityType>), typeid(SystemD<EntityType>)}; }
-};
-
-template<ECS::EntityRequirements EntityType>
-class SystemD : public ECS::ASystem<EntityType>
-{
-public:
-    SystemD(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemD)) {};
-    virtual ~SystemD(void) override = default;
-
-    virtual void setup(ECS::Registry<ECS::Entity> &registry) {};
-    virtual Dependencies dependencies(void) { return Dependencies {typeid(SystemB<EntityType>)}; }
-};
-
-template<ECS::EntityRequirements EntityType>
-class SystemE : public ECS::ASystem<EntityType>
-{
-public:
-    SystemE(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemE)) {};
-    virtual ~SystemE(void) override = default;
-
-    virtual void setup(ECS::Registry<ECS::Entity> &registry) {};
-    virtual Dependencies dependencies(void) { return Dependencies {typeid(SystemD<EntityType>), typeid(SystemC<EntityType>)}; }
+    void setup(ECS::Registry<ECS::Entity> &registry) {};
+    virtual Dependencies dependencies(void) { return Dependencies { typeid(SystemDummy<EntityType>) }; };
 };
 
 TEST(SystemGraph, Add)
 {
     ECS::SystemGraph<ECS::Entity> systemGraph;
 
-    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), false);
-    systemGraph.add<SystemA<ECS::Entity>>();
-    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), true);
+    ASSERT_EQ(systemGraph.exists<SystemDummy<ECS::Entity>>(), false);
+    systemGraph.add<SystemDummy<ECS::Entity>>();
+    ASSERT_EQ(systemGraph.exists<SystemDummy<ECS::Entity>>(), true);
 }
 
 TEST(SystemGraph, Get)
 {
     ECS::SystemGraph<ECS::Entity> systemGraph;
 
-    systemGraph.add<SystemA<ECS::Entity>>();
-    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), true);
-    const SystemA<ECS::Entity> systemA = systemGraph.get<SystemA<ECS::Entity>>();
-    ASSERT_EQ(systemA.typeID().name(), typeid(SystemA<ECS::Entity>).name());
+    systemGraph.add<SystemDummy<ECS::Entity>>();
+    ASSERT_EQ(systemGraph.exists<SystemDummy<ECS::Entity>>(), true);
+    const SystemDummy<ECS::Entity> systemDummy = systemGraph.get<SystemDummy<ECS::Entity>>();
+    ASSERT_EQ(systemDummy.typeID().name(), typeid(SystemDummy<ECS::Entity>).name());
 }
 
 TEST(SystemGraph, Clear)
 {
     ECS::SystemGraph<ECS::Entity> systemGraph;
 
-    systemGraph.add<SystemA<ECS::Entity>>();
-    systemGraph.add<SystemB<ECS::Entity>>();
-    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), true);
-    ASSERT_EQ(systemGraph.exists<SystemB<ECS::Entity>>(), true);
+    systemGraph.add<SystemDummy<ECS::Entity>>();
+    systemGraph.add<SystemDummy2<ECS::Entity>>();
+    ASSERT_EQ(systemGraph.exists<SystemDummy<ECS::Entity>>(), true);
+    ASSERT_EQ(systemGraph.exists<SystemDummy2<ECS::Entity>>(), true);
     systemGraph.clear();
-    ASSERT_EQ(systemGraph.exists<SystemA<ECS::Entity>>(), false);
-    ASSERT_EQ(systemGraph.exists<SystemB<ECS::Entity>>(), false);
+    ASSERT_EQ(systemGraph.exists<SystemDummy<ECS::Entity>>(), false);
+    ASSERT_EQ(systemGraph.exists<SystemDummy2<ECS::Entity>>(), false);
 }
+
+template<ECS::EntityRequirements EntityType, char Character, typename ...DependentSystems>
+class SystemSimple : public ECS::ASystem<EntityType>
+{
+public:
+    SystemSimple(std::vector<char> &output) noexcept
+        : ECS::ASystem<EntityType>(typeid(SystemSimple)), _output(&output) {};
+    virtual ~SystemSimple(void) override = default;
+
+    virtual void setup(ECS::Registry<ECS::Entity> &registry) override
+    {
+        ECS::ASystem<EntityType>::graph().emplace([this] {
+            _output->push_back(Character);
+        });
+    }
+
+    virtual Dependencies dependencies(void) { return Dependencies { typeid(DependentSystems)... }; };
+private:
+    std::vector<char> *_output;
+
+};
+
 
 TEST(SystemGraph, SimpleBuild)
 {
+    using SystemSimpleA = SystemSimple<ECS::Entity, 'A'>;
+    using SystemSimpleB = SystemSimple<ECS::Entity, 'B', SystemSimpleA>;
+
+    Flow::Scheduler scheduler;
     ECS::Registry<ECS::Entity> registry;
-    ECS::SystemGraph<ECS::Entity> systemGraph;
+    std::vector<char> output;
 
-    systemGraph.add<SystemD<ECS::Entity>>();
-    systemGraph.add<SystemB<ECS::Entity>>();
-    systemGraph.build(registry);
+    registry.systemGraph().add<SystemSimpleB>(output);
+    registry.systemGraph().add<SystemSimpleA>(output);
+    registry.buildSystemGraph();
 
-    // Need to access _systems to check if valid
+    for (auto i = 0; i < 1000; ++i) {
+        scheduler.schedule(registry);
+        registry.systemGraph().graph().wait();
+        ASSERT_EQ(output[0], 'A');
+        ASSERT_EQ(output[1], 'B');
+        output.clear();
+    }
 }
 
-TEST(SystemGraph, ComplexBuild)
-{
-    ECS::Registry<ECS::Entity> registry;
-    ECS::SystemGraph<ECS::Entity> systemGraph;
+// TEST(SystemGraph, ComplexBuild)
+// {
+//     ECS::Registry<ECS::Entity> registry;
 
-    systemGraph.add<SystemA<ECS::Entity>>();
-    systemGraph.add<SystemB<ECS::Entity>>();
-    systemGraph.add<SystemC<ECS::Entity>>();
-    systemGraph.add<SystemD<ECS::Entity>>();
-    systemGraph.add<SystemE<ECS::Entity>>();
-    systemGraph.build(registry);
+//     registry.systemGraph().add<SystemA<ECS::Entity>>();
+//     registry.systemGraph().add<SystemB<ECS::Entity>>();
+//     registry.systemGraph().add<SystemC<ECS::Entity>>();
+//     registry.systemGraph().add<SystemD<ECS::Entity>>();
+//     registry.systemGraph().add<SystemE<ECS::Entity>>();
+//     registry.buildSystemGraph();
 
-    // Need to access _systems to check if valid
-}
+//     // Need to access _systems to check if valid
+// }
