@@ -76,7 +76,7 @@ template<kF::ECS::EntityRequirements EntityType, EntityType PageSize>
 inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Page
     kF::ECS::SparseEntitySet<EntityType, PageSize>::MakePage(void) noexcept_ndebug
 {
-    auto * const data = reinterpret_cast<Index *>(Core::Utils::AlignedAlloc(alignof(Index), sizeof(Index) * PageSize));
+    auto * const data = reinterpret_cast<Index *>(Core::Utils::AlignedAlloc<alignof(Index)>(sizeof(Index) * PageSize));
 
     std::uninitialized_fill_n(data, PageSize, NullIndex);
     return Page(data);
