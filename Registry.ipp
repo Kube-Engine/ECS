@@ -94,7 +94,7 @@ inline void kF::ECS::Registry<EntityType>::clear(void)
 
 template<kF::ECS::EntityRequirements EntityType>
 template<typename... Components>
-inline kF::ECS::View<EntityType, Components...> kF::ECS::Registry<EntityType>::view(void) const noexcept_ndebug
+inline kF::ECS::View<EntityType, Components...> kF::ECS::Registry<EntityType>::view(void) noexcept_ndebug
 {
     kFAssert((... && _componentTables.template tableExists<Components>()),
         throw std::logic_error("ECS::Registry::detach: ComponentTable does not exists"));

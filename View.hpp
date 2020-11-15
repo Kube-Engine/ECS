@@ -46,7 +46,7 @@ public:
 private:
     /** @brief Get a specific component from a referenced table */
     template<typename Component>
-    [[nodiscard]] const Component &getComponentOf(EntityType entity) const noexcept;
+    [[nodiscard]] Component &getComponentOf(EntityType entity) const noexcept;
 
     std::tuple<ComponentTable<Components, EntityType> *...> _tables;
 };

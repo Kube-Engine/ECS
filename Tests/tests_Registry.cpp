@@ -9,14 +9,14 @@
 
 using namespace kF;
 
-struct position {
-    position(float x, float y) : x(x), y(y) {}
+struct Position
+{
     float x;
     float y;
 };
 
-struct velocity {
-    velocity(float dx, float dy) : dx(dx), dy(dy) {}
+struct Velocity
+{
     float dx;
     float dy;
 };
@@ -37,12 +37,12 @@ TEST(Registry, StructComponent)
     for (auto i = 0; i < 10; ++i) {
         auto entity = registry.add();
 
-        registry.attach<position>(entity, i * 1.f, i * 1.f);
+        registry.attach<Position>(entity, i * 1.f, i * 1.f);
         if (i % 2 == 0)
-            registry.attach<velocity>(entity, i * .1f, i * .1f);
+            registry.attach<Velocity>(entity, i * .1f, i * .1f);
     }
 
-    auto view = registry.view<position, velocity>();
+    auto view = registry.view<Position, Velocity>();
     view.traverse([](auto &position, auto &velocity) {
         position.x += velocity.dx;
         position.y += velocity.dy;

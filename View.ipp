@@ -39,7 +39,7 @@ inline bool kF::ECS::View<EntityType, Components ...>::traverse(Functor &&func) 
 
 template<kF::ECS::EntityRequirements EntityType, typename ...Components>
 template<typename Component>
-inline const Component &kF::ECS::View<EntityType, Components ...>::getComponentOf(EntityType entity) const noexcept
+inline Component &kF::ECS::View<EntityType, Components ...>::getComponentOf(EntityType entity) const noexcept
 {
     return std::get<ComponentTable<Component, EntityType> *>(_tables)->get(entity);
 }
