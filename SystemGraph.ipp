@@ -67,26 +67,10 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
     // Determine the sequential order of systems
     std::vector<ASystem<EntityType> *> systemsSorted;
     systemsSorted.reserve(_systems.size());
-
-    std::cout << "-----\nUNSORTED: " << std::endl;
-    for (auto &system : systemsUnsorted) {
-        std::cout << system.first->typeID().name() << std::endl;
-        for (auto &dependency : system.second) {
-            std::cout << "\t" << dependency.name() << std::endl;
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "-----" << std::endl;
-
     while (systemsSorted.size() != _systems.size()) {
         auto noDependencyIt = std::find_if(systemsUnsorted.begin(), systemsUnsorted.end(), [](const auto &pair){ return pair.second.size() == 0; });
-        // std::cout << typeid(noDependencyIt).name() << std::endl;
-        // std::cout << typeid(systemsUnsorted.begin()).name() << std::endl;
         if (noDependencyIt == systemsUnsorted.end())
             throw std::logic_error("ECS::SystemGraph::build: Circular dependencies in systems");
-        // std::cout << "NO DEPENDENCY: " << noDependencyIt->first->typeID().name() << std::endl;
-        // systemsSorted.push_back(noDependencyIt->first);
-        systemsUnsorted.erase(noDependencyIt);
         for (auto pair = systemsUnsorted.begin(); pair != systemsUnsorted.end(); ++pair) {
             auto dependencyIt = std::find_if(pair->second.begin(), pair->second.end(), [noDependencyID = noDependencyIt->first->typeID()](const auto &dependency){
                 return dependency == noDependencyID;
@@ -94,41 +78,9 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
             if (dependencyIt != pair->second.end())
                 pair->second.erase(dependencyIt);
         }
-        std::cout << "-----\nUNSORTED: " << std::endl;
-        for (auto &system : systemsUnsorted) {
-            std::cout << system.first->typeID().name() << std::endl;
-            for (auto &dependency : system.second) {
-                std::cout << "\t" << dependency.name() << std::endl;
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "-----" << std::endl;
+        systemsSorted.push_back(noDependencyIt->first);
+        systemsUnsorted.erase(noDependencyIt);
     }
-
-    std::cout << std::endl << "SORTED: " << std::endl;
-    for (auto &system : systemsSorted) {
-        std::cout << system->typeID().name() << std::endl;
-    }
-    std::cout << std::endl;
-
-    // for (auto it = systemsUnsorted.begin(); it != systemsUnsorted.end();) {
-    //     bool hasSwap = false;
-    //     for (const auto dependencyID : it->second) {
-    //         const auto dependencyExist = [dependencyID](const SystemPair &pair){ return pair.first->typeID() == dependencyID; };
-    //         // Swap `dependencyID` and `it` if `dependencyID` is not before `it`
-    //         if (!std::any_of(systemsUnsorted.begin(), it, dependencyExist)) {
-    //             auto dependencyIt = std::find_if(systemsUnsorted.begin(), systemsUnsorted.end(), dependencyExist);
-    //             if (dependencyIt == systemsUnsorted.end())
-    //                 throw std::logic_error("ECS::SystemGraph::build: Dependency do not exist");
-    //             std::swap(it->first, dependencyIt->first);
-    //             it->second.swap(dependencyIt->second);
-    //             hasSwap = true;
-    //             break;
-    //         }
-    //     }
-    //     if (!hasSwap)
-    //         ++it;
-    // }
 
     // Build the sequential graph
     auto current = systemsSorted.begin();

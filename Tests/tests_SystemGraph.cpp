@@ -84,95 +84,103 @@ TEST(SystemGraph, Clear)
     ASSERT_EQ(systemGraph.exists<DependentSystemB>(), false);
 }
 
-template<ECS::EntityRequirements EntityType>
-class SystemA;
-template<ECS::EntityRequirements EntityType>
-class SystemB;
-
-template<ECS::EntityRequirements EntityType>
-class SystemA : public ECS::ASystem<EntityType>
-{
-public:
-    SystemA() noexcept : ECS::ASystem<EntityType>(typeid(SystemA)) {};
-    virtual ~SystemA(void) override = default;
-
-    virtual void setup(ECS::Registry<ECS::Entity> &registry) override {}
-
-    virtual Dependencies dependencies(void) { return Dependencies {
-    }; };
-};
-
-template<ECS::EntityRequirements EntityType>
-class SystemB : public ECS::ASystem<EntityType>
-{
-public:
-    SystemB() noexcept : ECS::ASystem<EntityType>(typeid(SystemB)) {};
-    virtual ~SystemB(void) override = default;
-
-    virtual void setup(ECS::Registry<ECS::Entity> &registry) override {}
-
-    virtual Dependencies dependencies(void) { return Dependencies {typeid(SystemA<ECS::Entity>)}; };
-};
-
 TEST(SystemGraph, SimpleBuild)
+{
+    using DependentSystemA = DependentSystem<ECS::Entity, 'A'>;
+    using DependentSystemB = DependentSystem<ECS::Entity, 'B', DependentSystemA>;
+
+    Flow::Scheduler scheduler;
+    ECS::Registry<ECS::Entity> registry;
+    std::vector<char> output;
+
+    registry.systemGraph().add<DependentSystemB>(output);
+    registry.systemGraph().add<DependentSystemA>(output);
+    registry.buildSystemGraph();
+
+    scheduler.schedule(registry);
+    registry.systemGraph().graph().wait();
+    ASSERT_EQ(output[0], 'A');
+    ASSERT_EQ(output[1], 'B');
+    output.clear();
+}
+
+TEST(SystemGraph, ComplexBuild)
+{
+    using DependentSystemB = DependentSystem<ECS::Entity, 'B'>;
+    using DependentSystemD = DependentSystem<ECS::Entity, 'D', DependentSystemB>;
+    using DependentSystemC = DependentSystem<ECS::Entity, 'C', DependentSystemB, DependentSystemD>;
+    using DependentSystemE = DependentSystem<ECS::Entity, 'E', DependentSystemC, DependentSystemD>;
+    using DependentSystemA = DependentSystem<ECS::Entity, 'A', DependentSystemB, DependentSystemE>;
+
+    Flow::Scheduler scheduler;
+    ECS::Registry<ECS::Entity> registry;
+    std::vector<char> output;
+
+    registry.systemGraph().add<DependentSystemA>(output);
+    registry.systemGraph().add<DependentSystemB>(output);
+    registry.systemGraph().add<DependentSystemC>(output);
+    registry.systemGraph().add<DependentSystemD>(output);
+    registry.systemGraph().add<DependentSystemE>(output);
+    registry.buildSystemGraph();
+
+    scheduler.schedule(registry);
+    registry.systemGraph().graph().wait();
+    ASSERT_EQ(output[0], 'B');
+    ASSERT_EQ(output[1], 'D');
+    ASSERT_EQ(output[2], 'C');
+    ASSERT_EQ(output[3], 'E');
+    ASSERT_EQ(output[4], 'A');
+    output.clear();
+}
+
+
+template<ECS::EntityRequirements EntityType>
+class CircularSystemA;
+template<ECS::EntityRequirements EntityType>
+class CircularSystemB;
+template<ECS::EntityRequirements EntityType>
+class CircularSystemC;
+
+template<ECS::EntityRequirements EntityType>
+class CircularSystemA : public ECS::ASystem<EntityType>
+{
+public:
+    CircularSystemA() noexcept : ECS::ASystem<EntityType>(typeid(CircularSystemA)) {};
+    virtual ~CircularSystemA(void) override = default;
+
+    virtual void setup(ECS::Registry<ECS::Entity> &registry) override {}
+    virtual Dependencies dependencies(void) { return Dependencies {typeid(CircularSystemB<EntityType>)}; };
+};
+
+template<ECS::EntityRequirements EntityType>
+class CircularSystemB : public ECS::ASystem<EntityType>
+{
+public:
+    CircularSystemB() noexcept : ECS::ASystem<EntityType>(typeid(CircularSystemB)) {};
+    virtual ~CircularSystemB(void) override = default;
+
+    virtual void setup(ECS::Registry<ECS::Entity> &registry) override {}
+    virtual Dependencies dependencies(void) { return Dependencies {typeid(CircularSystemC<EntityType>)}; };
+};
+
+template<ECS::EntityRequirements EntityType>
+class CircularSystemC : public ECS::ASystem<EntityType>
+{
+public:
+    CircularSystemC() noexcept : ECS::ASystem<EntityType>(typeid(CircularSystemC)) {};
+    virtual ~CircularSystemC(void) override = default;
+
+    virtual void setup(ECS::Registry<ECS::Entity> &registry) override {}
+    virtual Dependencies dependencies(void) { return Dependencies {typeid(CircularSystemA<EntityType>)}; };
+};
+
+TEST(SystemGraph, CircularDependency)
 {
     Flow::Scheduler scheduler;
     ECS::Registry<ECS::Entity> registry;
 
-    registry.systemGraph().add<SystemB<ECS::Entity>>();
-    registry.systemGraph().add<SystemA<ECS::Entity>>();
-    registry.buildSystemGraph();
+    registry.systemGraph().add<CircularSystemA<ECS::Entity>>();
+    registry.systemGraph().add<CircularSystemB<ECS::Entity>>();
+    registry.systemGraph().add<CircularSystemC<ECS::Entity>>();
+    ASSERT_THROW(registry.buildSystemGraph(), std::logic_error);
 }
-
-// TEST(SystemGraph, SimpleBuild)
-// {
-//     using DependentSystemA = DependentSystem<ECS::Entity, 'A'>;
-//     using DependentSystemB = DependentSystem<ECS::Entity, 'B', DependentSystemA>;
-
-//     Flow::Scheduler scheduler;
-//     ECS::Registry<ECS::Entity> registry;
-//     std::vector<char> output;
-
-//     registry.systemGraph().add<DependentSystemB>(output);
-//     registry.systemGraph().add<DependentSystemA>(output);
-//     registry.buildSystemGraph();
-
-//     for (auto i = 0; i < 1000; ++i) {
-//         scheduler.schedule(registry);
-//         registry.systemGraph().graph().wait();
-//         ASSERT_EQ(output[0], 'A');
-//         ASSERT_EQ(output[1], 'B');
-//         output.clear();
-//     }
-// }
-
-// TEST(SystemGraph, ComplexBuild)
-// {
-//     using DependentSystemB = DependentSystem<ECS::Entity, 'B'>;
-//     using DependentSystemD = DependentSystem<ECS::Entity, 'D', DependentSystemB>;
-//     using DependentSystemC = DependentSystem<ECS::Entity, 'C', DependentSystemB, DependentSystemD>;
-//     using DependentSystemE = DependentSystem<ECS::Entity, 'E', DependentSystemC, DependentSystemD>;
-//     using DependentSystemA = DependentSystem<ECS::Entity, 'A', DependentSystemB, DependentSystemE>;
-
-//     Flow::Scheduler scheduler;
-//     ECS::Registry<ECS::Entity> registry;
-//     std::vector<char> output;
-
-//     registry.systemGraph().add<DependentSystemA>(output);
-//     registry.systemGraph().add<DependentSystemB>(output);
-//     registry.systemGraph().add<DependentSystemC>(output);
-//     registry.systemGraph().add<DependentSystemD>(output);
-//     registry.systemGraph().add<DependentSystemE>(output);
-//     registry.buildSystemGraph();
-
-//     for (auto i = 0; i < 1000; ++i) {
-//         scheduler.schedule(registry);
-//         registry.systemGraph().graph().wait();
-//         ASSERT_EQ(output[0], 'B');
-//         ASSERT_EQ(output[1], 'D');
-//         ASSERT_EQ(output[2], 'C');
-//         ASSERT_EQ(output[3], 'E');
-//         ASSERT_EQ(output[4], 'A');
-//         output.clear();
-//     }
-// }
