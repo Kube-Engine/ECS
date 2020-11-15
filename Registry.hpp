@@ -85,7 +85,7 @@ public:
 
     /** @brief Create a view used to traverse entities matching a set of components */
     template<typename... Components>
-    [[nodiscard]] View<EntityType, Components...> view(void) const noexcept_ndebug;
+    [[nodiscard]] View<EntityType, Components...> view(void) noexcept_ndebug;
 
 
     /** @brief Retreive the component table list */
