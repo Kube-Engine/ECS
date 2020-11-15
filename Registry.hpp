@@ -32,9 +32,6 @@ public:
     void registerComponent(void) noexcept_ndebug { _componentTables.template add<Component>(); }
 
 
-    /** @brief Check if an entity is defined inside the registry */
-    [[nodiscard]] bool exists(const EntityType entity) const noexcept { return _entities.size() < entity && _entities[entity] == entity; }
-
     /** @brief Construct an empty entity */
     [[nodiscard("You may not discard an entity without components")]]
     EntityType add(void) noexcept;
