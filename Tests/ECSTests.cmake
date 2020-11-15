@@ -6,7 +6,7 @@ set(KubeECSTestsSources
     ${KubeECSTestsDir}/tests_SparseEntitySet.cpp
     ${KubeECSTestsDir}/tests_ComponentTable.cpp
     ${KubeECSTestsDir}/tests_ComponentTables.cpp
-    # ${KubeECSTestsDir}/tests_Registry.cpp
+    ${KubeECSTestsDir}/tests_Registry.cpp
     ${KubeECSTestsDir}/tests_View.cpp
     ${KubeECSTestsDir}/tests_SystemGraph.cpp
 )
