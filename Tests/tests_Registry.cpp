@@ -75,9 +75,9 @@ public:
 
     virtual void setup(ECS::Registry<ECS::Entity> &registry) override
     {
-        graph().emplace([&registry, this]() {
+        graph().emplace([&registry, this] {
             auto view = registry.view<Position, Wind>();
-            view.traverse([this](Position &position, Wind &wind) {
+            view.traverse([this](Position &position, const Wind &wind) {
                 this->update(position, wind);
             });
         } );
