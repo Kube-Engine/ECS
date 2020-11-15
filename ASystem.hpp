@@ -26,7 +26,7 @@ class kF::ECS::ASystem
 {
 public:
     using TypeID = std::type_index;
-    using Dependencies = Core::Vector<TypeID>;
+    using Dependencies = std::vector<TypeID>;
 
     /** @brief Construct a new system using a TypeID */
     ASystem(const TypeID typeID) noexcept : _typeID(typeID) {};

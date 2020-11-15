@@ -12,7 +12,7 @@
 using namespace kF;
 
 using TypeID = std::type_index;
-using Dependencies = Core::Vector<TypeID>;
+using Dependencies = std::vector<TypeID>;
 
 struct Position
 {

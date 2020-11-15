@@ -52,8 +52,8 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
     if (_systems.size() == 0ul)
         throw std::logic_error("ECS::SystemGraph::build: No system in graph");
 
-    // Prepare systems to order and clear graph 
-    Core::Vector<SystemPair> systemsUnsorted;
+    // Prepare systems to order and clear graph
+    std::vector<SystemPair> systemsUnsorted;
     systemsUnsorted.reserve(_systems.size());
     _graph.clear();
 
@@ -61,11 +61,11 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
     for (auto &system : _systems) {
         system->setup(registry);
         system->task() = _graph.emplace(system->graph());
-        systemsUnsorted.push(system.get(), system->dependencies());
+        systemsUnsorted.emplace_back(system.get(), system->dependencies());
     }
 
     // Determine the sequential order of systems
-    Core::Vector<ASystem<EntityType> *> systemsSorted;
+    std::vector<ASystem<EntityType> *> systemsSorted;
     systemsSorted.reserve(_systems.size());
 
     std::cout << "-----\nUNSORTED: " << std::endl;
@@ -85,7 +85,7 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
         if (noDependencyIt == systemsUnsorted.end())
             throw std::logic_error("ECS::SystemGraph::build: Circular dependencies in systems");
         // std::cout << "NO DEPENDENCY: " << noDependencyIt->first->typeID().name() << std::endl;
-        // systemsSorted.push(noDependencyIt->first);
+        // systemsSorted.push_back(noDependencyIt->first);
         systemsUnsorted.erase(noDependencyIt);
         for (auto pair = systemsUnsorted.begin(); pair != systemsUnsorted.end(); ++pair) {
             auto dependencyIt = std::find_if(pair->second.begin(), pair->second.end(), [noDependencyID = noDependencyIt->first->typeID()](const auto &dependency){
@@ -149,7 +149,7 @@ inline void kF::ECS::SystemGraph<EntityType>::build(Registry<EntityType> &regist
 //     if (_systems.size() == 0ul)
 //         throw std::logic_error("ECS::SystemGraph::build: No system in graph");
 
-//     // Prepare systems order and clear graph 
+//     // Prepare systems order and clear graph
 //     Core::Vector<SystemPair> systemsOrder;
 //     systemsOrder.reserve(_systems.size());
 //     _graph.clear();
