@@ -36,14 +36,14 @@ template<ECS::EntityRequirements EntityType>
 class SystemInput : public ECS::ASystem<EntityType>
 {
 public:
+    using ECS::ASystem<EntityType>::graph;
+
     SystemInput(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemInput)) {};
     virtual ~SystemInput(void) override = default;
 
-    void setup(ECS::Registry<ECS::Entity> &registry)
+    virtual void setup(ECS::Registry<ECS::Entity> &registry) override
     {
-        auto &task = this->task();
-
-        task.setWork([&registry, this]() {
+        graph().emplace([&registry, this]() {
             auto view = registry.view<Position, Velocity>();
             view.traverse([this](Position &position, Velocity &velocity) {
                 this->update(position, velocity);
@@ -51,10 +51,9 @@ public:
         } );
     }
 
-    Dependencies dependencies(void)
+    virtual Dependencies dependencies(void) override
     {
-        Dependencies test;
-        return test;
+        return {};
     }
 
 private:
@@ -69,14 +68,14 @@ template<ECS::EntityRequirements EntityType>
 class SystemWind : public ECS::ASystem<EntityType>
 {
 public:
+    using ECS::ASystem<EntityType>::graph;
+
     SystemWind(void) noexcept : ECS::ASystem<EntityType>(typeid(SystemWind)) {};
     virtual ~SystemWind(void) override = default;
 
-    virtual void setup(ECS::Registry<ECS::Entity> &registry)
+    virtual void setup(ECS::Registry<ECS::Entity> &registry) override
     {
-        auto &task = this->task();
-
-        task.setWork([&registry, this]() {
+        graph().emplace([&registry, this]() {
             auto view = registry.view<Position, Wind>();
             view.traverse([this](Position &position, Wind &wind) {
                 this->update(position, wind);
@@ -84,11 +83,9 @@ public:
         } );
     }
 
-    virtual Dependencies dependencies(void)
+    virtual Dependencies dependencies(void) override
     {
-        Dependencies test;
-        test.push(typeid(SystemInput<EntityType>));
-        return test;
+        return { typeid(SystemInput<EntityType>) };
     }
 
 private:
@@ -102,7 +99,7 @@ private:
 #define PREPARE_REGISTRY(registry, nbrEntity) \
 registry.registerComponent<Position>(); \
 registry.registerComponent<Velocity>(); \
-for (auto i = 1; i <= 10; ++i) { \
+for (auto i = 1; i <= nbrEntity; ++i) { \
     auto entity = registry.add(); \
     registry.attach<Position>(entity, i * 1.f, i * 1.f); \
     if (i % 2 == 0) \
@@ -159,10 +156,11 @@ TEST(Registry, SystemGraph)
     auto &systemGraph = registry.systemGraph();
     systemGraph.add<SystemWind<ECS::Entity>>();
     systemGraph.add<SystemInput<ECS::Entity>>();
-    systemGraph.build(registry);
+    registry.buildSystemGraph();
 
     Flow::Scheduler scheduler;
     scheduler.schedule(registry);
+    systemGraph.graph().wait();
 
     const auto &componentTables = registry.componentTables();
     const auto &positionTable = componentTables.getTable<Position>();
