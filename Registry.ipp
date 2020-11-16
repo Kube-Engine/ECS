@@ -109,8 +109,6 @@ inline void kF::ECS::Registry<EntityType>::removeEntityFromRegistry(const Entity
 {
     const auto lastDestroyed = _lastDestroyed;
 
-    kFAssert(exists(entity),
-        throw std::logic_error("ECS::Registry::remove: Entity does not exists"));
     _lastDestroyed = entity;
     _entities.at(entity) = lastDestroyed;
 }
