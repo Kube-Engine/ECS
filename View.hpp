@@ -43,7 +43,18 @@ public:
 //        requires (!std::is_same_v<Component, Components> && ...)
     bool traverse(Functor &&func) const;
 
+    /** @brief Collect all entities which match and return entites in the Container */
+    template<typename Container>
+    void collect(Container &) const;
+
+    /** @brief Collect all entities which match and return entites in the Container. Enforce the iteration order in case of Component */
+    template<typename Component, typename Container>
+    void collect(Container &) const;
+
 private:
+    /** @brief Get entities of the component with the minimum amount of entities which match */
+    [[nodiscard]] const Core::Vector<EntityType, EntityType> *findMinimumEntities() const noexcept;
+
     /** @brief Get a specific component from a referenced table */
     template<typename Component>
     [[nodiscard]] Component &getComponentOf(EntityType entity) const noexcept;

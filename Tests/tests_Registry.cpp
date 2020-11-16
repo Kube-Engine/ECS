@@ -89,7 +89,7 @@ public:
     }
 
 private:
-    void update(Position &position, Wind &wind)
+    void update(Position &position, const Wind &wind)
     {
         position.x += wind.dx;
         position.y += wind.dy;
