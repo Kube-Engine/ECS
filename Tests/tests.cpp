@@ -151,7 +151,7 @@ public:
                                 auto &arrowComponent = registry.attach<Arrow>(arrow, characterData1.damage);
 
                                 rigidbody.collideDispatcher.add([&tableCharacterData, arrow, &arrowComponent, &registry](EntityType entity) {
-                                    auto &other = tableCharacterData.get<CharacterData>(entity);
+                                    auto &other = tableCharacterData.get(entity);
 
                                     other.life -= arrowComponent.damage;
                                     registry.remove(arrow);
