@@ -12,30 +12,30 @@ using namespace kF;
 
 struct Position
 {
-	int x;
-	int y;
+    int x;
+    int y;
 };
 
 struct Velocity
 {
-	int x;
-	int y;
+    int x;
+    int y;
 };
 
 struct Rigidbody
 {
     using CollideDispatcher = Core::TrivialDispatcher<void (Rigidbody &)>;
 
-	int width;
-	int height;
-	CollideDispatcher collideDispatcher;
+    int width;
+    int height;
+    CollideDispatcher collideDispatcher;
 };
 
 struct CharacterData
 {
-	int life;
-	int damage;
-	int range;
+    int life;
+    int damage;
+    int range;
 };
 
 template<ECS::EntityRequirements EntityType>
@@ -51,8 +51,8 @@ public:
     {
         graph().emplace([&registry, this] {
             registry.view<Position, Velocity>().traverse([this](Position &position, const Velocity &velocity) {
-				position.x += velocity.x;
-				position.y += velocity.y;
+    position.x += velocity.x;
+    position.y += velocity.y;
             });
         } );
     }
@@ -78,7 +78,7 @@ public:
         auto retrieveEntities = graph().emplace([&registry, this] {
             registry.view<Position, Rigidbody>().collect(_entities);
         } );
-		auto checkCollision = graph().emplace([&registry, this] {
+    auto checkCollision = graph().emplace([&registry, this] {
             auto &componentTables = registry.componentTables();
             auto &tablePosition = componentTables.getTable<Position>();
             auto &tableRigidbody = componentTables.getTable<Rigidbody>();
@@ -109,9 +109,9 @@ public:
     }
 
 private:
-	Core::Vector<EntityType> _entities {};
+    Core::Vector<EntityType> _entities {};
 
-    inline bool collide(Position position1, Rigidbody rigidbody1, Position position2, Rigidbody rigidbody2)
+    inline bool collide(const Position &position1, const Rigidbody &rigidbody1, const Position &position2, const Rigidbody &rigidbody2)
     {
         return position1.x < (position2.x + rigidbody2.width) && position1.y > (position2.y + rigidbody2.height)
             && (position1.x + rigidbody1.width) > position2.x && (position1.y + rigidbody1.height) < position2.y;
@@ -207,21 +207,21 @@ Arrow (damage<int>)
 
 Systems:
 Movement
-	updatePosition<Position, Velocity, RigidBody> # if RigidBody's isCollide is true, do not update
-		isCollide<Position, Velocity, RigidBody> # if actual pos + velocity is going to share coordinate with any other's pos, set isCollide to true.
+    updatePosition<Position, Velocity, RigidBody> # if RigidBody's isCollide is true, do not update
+    isCollide<Position, Velocity, RigidBody> # if actual pos + velocity is going to share coordinate with any other's pos, set isCollide to true.
 
 View
-	isView<Skeleton, Player> # if player's pos < skeleton's pos + skeleton's viewRay, skeleton's isTargetAcquired is set to true and a pointer to players is stocked in skeleton's target
+    isView<Skeleton, Player> # if player's pos < skeleton's pos + skeleton's viewRay, skeleton's isTargetAcquired is set to true and a pointer to players is stocked in skeleton's target
 
 AI
-	skeletonAI<Skeleton> # if skeleton's isTargetAcquired is True, generate a new arrow entity and set her velocity towards target's pos
-		PlayerAI<Player> # if player's isCollide is True and is collided by an arrow, set life to life - arrow's damage and destroy the arrow. !!!! WE NEED TO FIGURE OUT HOW TO DETERMINE 'and is collided by an arrow' !!!!
+    skeletonAI<Skeleton> # if skeleton's isTargetAcquired is True, generate a new arrow entity and set her velocity towards target's pos
+    PlayerAI<Player> # if player's isCollide is True and is collided by an arrow, set life to life - arrow's damage and destroy the arrow. !!!! WE NEED TO FIGURE OUT HOW TO DETERMINE 'and is collided by an arrow' !!!!
 
 System's Priorities:
 Movement (Sequential)
 isCollide
-	updatePosition
-	View
-	AI (Parallel)
+    updatePosition
+    View
+    AI (Parallel)
 
 */
