@@ -22,7 +22,7 @@ inline EntityType kF::ECS::Registry<EntityType>::add(void) noexcept
 template<kF::ECS::EntityRequirements EntityType>
 template<typename... Components>
 inline EntityType kF::ECS::Registry<EntityType>::add(Components &&... components)
-    noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)))
+    noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(decltype(components))))
 {
     const auto newEntity = add();
 
@@ -58,7 +58,7 @@ inline Component &kF::ECS::Registry<EntityType>::attach(const EntityType entity,
 template<kF::ECS::EntityRequirements EntityType>
 template<typename... Components> requires (sizeof...(Components) > 1)
 inline void kF::ECS::Registry<EntityType>::attach(const EntityType entity, Components &&... components)
-    noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)))
+    noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(decltype(components))))
 {
     (... , attach<Components>(entity, std::forward<Components>(components)));
 }

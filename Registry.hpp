@@ -45,7 +45,7 @@ public:
     /** @brief Construct an entity with several components binded */
     template<typename... Components>
     EntityType add(Components &&... components)
-        noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)));
+        noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(decltype(components))));
 
     /** @brief Slow opaque entity erasure */
     void remove(const EntityType entity) noexcept_ndebug;
@@ -63,7 +63,7 @@ public:
     /** @brief Add a set of components to an entity */
     template<typename... Components> requires (sizeof...(Components) > 1)
     void attach(const EntityType entity, Components &&... components)
-        noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(Components)));
+        noexcept(nothrow_ndebug && (... && nothrow_forward_constructible(decltype(components))));
 
 
     /** @brief Remove a single component from an entity */
