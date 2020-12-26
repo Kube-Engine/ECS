@@ -100,7 +100,7 @@ inline kF::ECS::View<EntityType, Components...> kF::ECS::Registry<EntityType>::v
         throw std::logic_error("ECS::Registry::detach: ComponentTable does not exists"));
 
     return View<EntityType, Components...>(
-        _componentTables.template getTable<Components>()...
+        getComponentTable<Components>()...
     );
 }
 

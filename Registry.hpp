@@ -84,6 +84,13 @@ public:
     template<typename... Components>
     [[nodiscard]] View<EntityType, Components...> view(void) noexcept_ndebug;
 
+    /** @brief Query a component table */
+    template<typename Component>
+    [[nodiscard]] const ComponentTable<Component, EntityType> &getComponentTable(void) const noexcept_ndebug
+        { return _componentTables.template getTable<Component>(); }
+    template<typename Component>
+    [[nodiscard]] ComponentTable<Component, EntityType> &getComponentTable(void) noexcept_ndebug
+        { return _componentTables.template getTable<Component>(); }
 
     /** @brief Retreive the component table list */
     [[nodiscard]] ComponentTables<EntityType> &componentTables(void) noexcept { return _componentTables; };
