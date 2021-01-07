@@ -33,7 +33,7 @@ inline typename kF::ECS::SparseEntitySet<EntityType, PageSize>::Index
     auto it = _pages.begin() + page;
     if (page >= _pages.size()) [[unlikely]] {
         const auto toInsert = 1 + page - _pages.size();
-        _pages.insert(_pages.end(), toInsert);
+        _pages.insertDefault(_pages.end(), toInsert);
         it = _pages.begin() + page;
         *it = MakePage();
     } else if (!*it) [[unlikely]] {
