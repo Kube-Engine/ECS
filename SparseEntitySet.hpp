@@ -33,7 +33,7 @@ public:
     /** @brief Helper used to delete pages */
     struct PageDeleter
     {
-        void operator()(Index *page) const noexcept { std::free(page); }
+        void operator()(Index *page) const noexcept { Core::Utils::AlignedFree(page); }
     };
 
     /** @brief Page containing indexes */
