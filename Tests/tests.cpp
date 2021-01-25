@@ -1,6 +1,6 @@
 /**
  * @ Author: Matthieu Moinvaziri
- * @ Description: Unit tests of View
+ * @ Description: Unit tests of ECS
  */
 
 #include <gtest/gtest.h>
